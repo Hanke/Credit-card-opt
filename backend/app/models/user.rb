@@ -4,6 +4,9 @@ class User < ApplicationRecord
 
   has_secure_password
 
+  has_many :user_cards, dependent: :destroy
+  has_many :credit_cards, through: :user_cards
+
   normalizes :email, with: ->(email) { email.strip.downcase }
 
   validates :email, presence: true,

@@ -1,6 +1,19 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
+  describe "associations" do
+    it { is_expected.to have_many(:user_cards).dependent(:destroy) }
+    it { is_expected.to have_many(:credit_cards).through(:user_cards) }
+
+    it "exposes credit cards through user cards" do
+      user = create(:user)
+      card = create(:credit_card)
+      create(:user_card, user: user, credit_card: card)
+
+      expect(user.credit_cards).to contain_exactly(card)
+    end
+  end
+
   describe "validations" do
     subject { build(:user) }
 
