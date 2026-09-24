@@ -30,6 +30,9 @@ gem "thruster", require: false
 gem "rack-cors"
 
 group :development, :test do
+  # Loads backend/.env into ENV so local settings live in one gitignored file
+  gem "dotenv-rails"
+
   # RSpec test framework with factories and matchers
   gem "rspec-rails"
   gem "factory_bot_rails"
