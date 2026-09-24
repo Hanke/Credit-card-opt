@@ -3,12 +3,8 @@ require "rails_helper"
 RSpec.describe "GET /api/v1/auth/me", type: :request do
   let(:user) { create(:user, email: "person@example.com") }
 
-  def auth_header(token)
-    { "Authorization" => "Bearer #{token}" }
-  end
-
   it "returns the current user for a valid token" do
-    get api_v1_auth_me_path, headers: auth_header(Auth::IssueToken.call(user))
+    get api_v1_auth_me_path, headers: auth_headers(user)
 
     expect(response).to have_http_status(:ok)
     expect(response.parsed_body).to eq(
@@ -31,14 +27,14 @@ RSpec.describe "GET /api/v1/auth/me", type: :request do
   end
 
   it "returns 401 for a malformed token" do
-    get api_v1_auth_me_path, headers: auth_header("garbage")
+    get api_v1_auth_me_path, headers: { "Authorization" => "Bearer garbage" }
 
     expect(response).to have_http_status(:unauthorized)
     expect(response.parsed_body).to eq("errors" => [ "You must be logged in" ])
   end
 
   it "returns 401 for an expired token" do
-    get api_v1_auth_me_path, headers: auth_header(Auth::IssueToken.call(user, now: 8.days.ago))
+    get api_v1_auth_me_path, headers: auth_headers(user, now: 8.days.ago)
 
     expect(response).to have_http_status(:unauthorized)
   end
@@ -50,10 +46,10 @@ RSpec.describe "GET /api/v1/auth/me", type: :request do
   end
 
   it "returns 401 when the token belongs to a deleted user" do
-    token = Auth::IssueToken.call(user)
+    headers = auth_headers(user)
     user.destroy!
 
-    get api_v1_auth_me_path, headers: auth_header(token)
+    get api_v1_auth_me_path, headers: headers
 
     expect(response).to have_http_status(:unauthorized)
   end

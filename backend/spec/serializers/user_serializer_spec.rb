@@ -1,9 +1,9 @@
 require "rails_helper"
 
-RSpec.describe Users::Serialize do
+RSpec.describe UserSerializer do
   describe ".call" do
     it "returns the public attributes of a user" do
-      user = create(:user, email: "person@example.com")
+      user = build_stubbed(:user, email: "person@example.com")
 
       payload = described_class.call(user)
 
@@ -15,7 +15,7 @@ RSpec.describe Users::Serialize do
     end
 
     it "never exposes the password digest" do
-      payload = described_class.call(create(:user))
+      payload = described_class.call(build_stubbed(:user))
 
       expect(payload.keys).not_to include(:password_digest, :password)
     end

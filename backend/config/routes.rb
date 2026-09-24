@@ -12,6 +12,8 @@ Rails.application.routes.draw do
         delete "logout", action: :logout
         get    "me",     action: :me
       end
+
+      resources :cards, only: %i[index show]
     end
   end
 end

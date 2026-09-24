@@ -79,6 +79,14 @@ RSpec.describe RewardRule, type: :model do
       end
     end
 
+    describe ".current" do
+      it "is effective_on today" do
+        travel_to today do
+          expect(described_class.current).to contain_exactly(current_dining, bounded_dining, current_groceries)
+        end
+      end
+    end
+
     describe ".effective_on" do
       it "returns open-ended and bounded rules that cover the date" do
         expect(described_class.effective_on(today))

@@ -9,4 +9,5 @@ class RewardRule < ApplicationRecord
 
   scope :for_category, ->(category) { where(category: category) }
   scope :effective_on, ->(date) { where(effective_from: ..date, effective_to: [ nil, date.. ]) }
+  scope :current, -> { effective_on(Date.current) }
 end

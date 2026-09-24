@@ -1,6 +1,7 @@
 class CreditCard < ApplicationRecord
   belongs_to :reward_currency
   has_many :reward_rules, dependent: :destroy
+  has_many :current_reward_rules, -> { current.order(:category, :effective_from) }, class_name: "RewardRule"
   has_many :user_cards, dependent: :destroy
   has_many :users, through: :user_cards
 
@@ -14,7 +15,7 @@ class CreditCard < ApplicationRecord
   scope :search, ->(query) {
     next all if query.blank?
 
-    pattern = "%#{sanitize_sql_like(query.to_s.strip)}%"
+    pattern = "%#{sanitize_sql_like(query.to_s.squish)}%"
     where(arel_table[:name].matches(pattern).or(arel_table[:issuer].matches(pattern)))
   }
 end

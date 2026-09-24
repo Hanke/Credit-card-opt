@@ -30,7 +30,7 @@ module Api
       end
 
       def me
-        render json: { user: Users::Serialize.call(current_user) }, status: :ok
+        render json: { user: UserSerializer.call(current_user) }, status: :ok
       end
 
       private
@@ -41,7 +41,7 @@ module Api
       end
 
       def session_payload(result)
-        { token: result.token, user: Users::Serialize.call(result.user) }
+        { token: result.token, user: UserSerializer.call(result.user) }
       end
     end
   end

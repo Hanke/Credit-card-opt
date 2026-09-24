@@ -54,6 +54,10 @@ RSpec.describe CreditCard, type: :model do
         expect(described_class.search(nil)).to contain_exactly(cobalt, td_aeroplan, pc_mastercard)
       end
 
+      it "normalises surrounding and repeated whitespace" do
+        expect(described_class.search("  amex   cobalt ")).to contain_exactly(cobalt)
+      end
+
       it "treats LIKE wildcards literally" do
         expect(described_class.search("%")).to be_empty
         expect(described_class.search("_")).to be_empty
@@ -63,6 +67,19 @@ RSpec.describe CreditCard, type: :model do
         expect(described_class.active.search("pc")).to be_empty
         expect(described_class.active.search("amex")).to contain_exactly(cobalt)
       end
+    end
+  end
+
+  describe "#current_reward_rules" do
+    it "returns only rules in effect today, ordered by category" do
+      card = create(:credit_card)
+      travel = create(:reward_rule, credit_card: card, category: "travel", effective_from: 1.year.ago.to_date)
+      dining = create(:reward_rule, credit_card: card, category: "dining", effective_from: 1.year.ago.to_date)
+      create(:reward_rule, credit_card: card, category: "gas", effective_from: 2.years.ago.to_date,
+                           effective_to: 1.day.ago.to_date)
+      create(:reward_rule, credit_card: card, category: "hotels", effective_from: 1.day.from_now.to_date)
+
+      expect(card.current_reward_rules).to eq([ dining, travel ])
     end
   end
 

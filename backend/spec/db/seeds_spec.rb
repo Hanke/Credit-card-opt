@@ -18,6 +18,7 @@ RSpec.describe "db/seeds" do
   it "seeds a broad catalogue of active Canadian cards" do
     expect(CreditCard.active.count).to be >= 25
     expect(CreditCard.active.count).to eq(CreditCard.count)
+    expect(CreditCard.active.count).to be <= Cards::Search::MAX_RESULTS
   end
 
   it "gives every card a currency, a base rate and at least one reward rule" do
@@ -63,7 +64,7 @@ RSpec.describe "db/seeds" do
   it "models cash-back cards as percentages worth one cent per point" do
     cash_back = RewardCurrency.find_by!(name: "Cash Back")
     card = CreditCard.find_by!(name: "Amex SimplyCash Preferred Card")
-    rule = card.reward_rules.for_category("gas").effective_on(Date.current).first!
+    rule = card.reward_rules.for_category("gas").current.first!
 
     expect(cash_back.cents_per_point).to eq(1.0)
     expect(card.reward_currency).to eq(cash_back)
@@ -72,7 +73,7 @@ RSpec.describe "db/seeds" do
 
   it "values Amex Cobalt dining at 750 points, about $7.50, on a $150 purchase" do
     card = CreditCard.find_by!(name: "Amex Cobalt")
-    rule = card.reward_rules.for_category("dining").effective_on(Date.current).first!
+    rule = card.reward_rules.for_category("dining").current.first!
 
     points = 150 * rule.earning_rate
     expect(points).to eq(750)
