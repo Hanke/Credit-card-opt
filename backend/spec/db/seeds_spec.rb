@@ -66,6 +66,7 @@ RSpec.describe "db/seeds" do
     card = CreditCard.find_by!(name: "Amex SimplyCash Preferred Card")
     rule = card.reward_rules.for_category("gas").current.first!
 
+    expect(cash_back).to be_cash_back
     expect(cash_back.cents_per_point).to eq(1.0)
     expect(card.reward_currency).to eq(cash_back)
     expect(150 * rule.earning_rate * cash_back.cents_per_point).to eq(600)

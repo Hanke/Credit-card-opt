@@ -24,6 +24,18 @@ RSpec.describe RewardCurrency, type: :model do
     end
   end
 
+  describe "#cash_back?" do
+    it "is true for the Cash Back currency regardless of case" do
+      expect(build(:reward_currency, name: "Cash Back")).to be_cash_back
+      expect(build(:reward_currency, name: "cash back")).to be_cash_back
+    end
+
+    it "is false for points currencies" do
+      expect(build(:reward_currency, :aeroplan)).not_to be_cash_back
+      expect(build(:reward_currency, name: nil)).not_to be_cash_back
+    end
+  end
+
   describe "database constraints" do
     it "enforces case-insensitive name uniqueness at the database level" do
       create(:reward_currency, name: "Aeroplan")

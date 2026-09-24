@@ -4,6 +4,11 @@ FactoryBot.define do
     cents_per_point { 1.0 }
     description { "Generic points currency" }
 
+    trait :cash_back do
+      name { "Cash Back" }
+      cents_per_point { 1.0 }
+    end
+
     trait :aeroplan do
       name { "Aeroplan" }
       cents_per_point { 1.5 }

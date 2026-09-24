@@ -21,7 +21,31 @@ RSpec.describe Recommendations::Calculate do
         rule_applied: "Dining rule",
         spend_cap_cents: nil
       )
-      expect(result[:explanation]).to be_a(String).and be_present
+      expect(result[:explanation]).to eq("Amex Cobalt earns 5x #{cobalt.reward_currency.name} on dining. 150 × 5 = 750 pts ≈ $7.50")
+    end
+
+    it "gives every result a non-empty explanation whose numbers match the numeric fields" do
+      cash_back = create(:credit_card, name: "Simplii Cash Back", reward_currency: create(:reward_currency, :cash_back), base_earn_rate: 0.5)
+      create(:reward_rule, credit_card: cash_back, category: "dining", earning_rate: 4.0, spend_cap_cents: 500_000)
+      aeroplan = create(:credit_card, :td_aeroplan_infinite)
+      pc = create(:credit_card, :pc_financial_mastercard)
+
+      results = described_class.call(amount: BigDecimal("12.34"), category: "dining", cards: [ cash_back, aeroplan, pc ], on: today)
+
+      expect(results.map { |result| result[:explanation] }).to all(be_a(String).and be_present)
+      results.each do |result|
+        expect(result[:explanation]).to include(format("$%.2f", result[:estimated_value_cents] / 100.0))
+        expect(result[:explanation]).to include("× #{result[:earning_rate].to_i}")
+      end
+      expect(results.find { |result| result[:card_name] == "Simplii Cash Back" }[:explanation]).to eq(
+        "Simplii Cash Back earns 4% cash back on dining. 12.34 × 4% = $0.49 (bonus rate applies up to $5,000/year)"
+      )
+      expect(results.find { |result| result[:card_name] == "TD Aeroplan Visa Infinite" }[:explanation]).to eq(
+        "TD Aeroplan Visa Infinite has no dining bonus, so the base rate of 1x applies. 12.34 × 1 = 12.34 pts ≈ $0.19"
+      )
+      expect(results.find { |result| result[:card_name] == "PC Financial World Elite Mastercard" }[:explanation]).to eq(
+        "PC Financial World Elite Mastercard has no dining bonus, so the base rate of 10x applies. 12.34 × 10 = 123.4 pts ≈ $0.12"
+      )
     end
 
     it "values TD Aeroplan dining at the base rate and 1.5 cents per point" do

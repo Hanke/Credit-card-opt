@@ -1,6 +1,6 @@
 [
   {
-    name: "Cash Back",
+    name: RewardCurrency::CASH_BACK_NAME,
     cents_per_point: 1.0,
     description: "Cash-back cards. One point is one cent, and the card's earning rates hold the " \
                  "percentage (4% back is stored as 4.0), so $100 at 4.0 earns 400 points = $4.00."

@@ -56,11 +56,11 @@ module Recommendations
         explanation: BuildExplanation.call(
           card: card,
           rule: rule,
+          rate: earning_rate,
+          points: points_earned,
+          value_cents: estimated_value_cents,
           amount: amount,
-          category: category,
-          earning_rate: earning_rate,
-          points_earned: points_earned,
-          estimated_value_cents: estimated_value_cents
+          category: category
         )
       }
     end
