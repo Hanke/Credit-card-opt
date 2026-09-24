@@ -35,7 +35,7 @@ Or run them separately with `cd backend && bin/rails server` and `cd frontend &&
 ## Tests
 
 ```sh
-cd backend && bin/rails test
+cd backend && bundle exec rspec
 cd frontend && npm run lint && npm run build
 ```
 

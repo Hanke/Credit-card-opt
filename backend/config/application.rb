@@ -12,7 +12,7 @@ require "action_mailer/railtie"
 # require "action_text/engine"
 require "action_view/railtie"
 require "action_cable/engine"
-require "rails/test_unit/railtie"
+# require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -40,5 +40,10 @@ module Backend
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    config.generators do |g|
+      g.test_framework :rspec, fixture: true
+      g.fixture_replacement :factory_bot, dir: "spec/factories"
+    end
   end
 end
