@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
 import * as api from '../api/client'
 import type { Credentials, SessionResponse, User } from '../api/client'
 import { AuthContext, type AuthContextValue } from './AuthContext'
-import { isAuthPath } from './authPaths'
 import { tokenStorage } from './tokenStorage'
 
 interface AuthProviderProps {
@@ -11,35 +9,27 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const navigate = useNavigate()
-  const [token, setToken] = useState<string | null>(() => tokenStorage.get())
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState<boolean>(() => tokenStorage.get() !== null)
 
   const clearSession = useCallback(() => {
     tokenStorage.clear()
-    setToken(null)
     setUser(null)
     setLoading(false)
   }, [])
 
   const applySession = useCallback((session: SessionResponse) => {
     tokenStorage.set(session.token)
-    setToken(session.token)
     setUser(session.user)
     setLoading(false)
   }, [])
 
   useEffect(() => {
     api.setUnauthorizedHandler((failedToken) => {
-      if (failedToken !== tokenStorage.get()) return
-      clearSession()
-      const { pathname, search } = window.location
-      if (isAuthPath(pathname)) return
-      navigate('/login', { replace: true, state: { from: `${pathname}${search}` } })
+      if (failedToken === tokenStorage.get()) clearSession()
     })
     return () => api.setUnauthorizedHandler(null)
-  }, [clearSession, navigate])
+  }, [clearSession])
 
   useEffect(() => {
     const storedToken = tokenStorage.get()
@@ -81,16 +71,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [applySession],
   )
 
-  const logout = useCallback(async () => {
-    try {
-      await api.logout()
-    } catch {}
+  const logout = useCallback(() => {
     clearSession()
+    api.logout().catch(() => {})
   }, [clearSession])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, token, loading, signup, login, logout }),
-    [user, token, loading, signup, login, logout],
+    () => ({ user, loading, signup, login, logout }),
+    [user, loading, signup, login, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

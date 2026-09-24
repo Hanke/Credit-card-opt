@@ -38,7 +38,10 @@ Or run them separately with `cd backend && bin/rails server` and `cd frontend &&
 ```sh
 cd backend && bundle exec rspec
 cd frontend && npm run lint && npm run build
+cd frontend && npm run test:e2e
 ```
+
+The end-to-end suite (`frontend/e2e/`, Playwright) boots the Rails API in the `test` environment on port 3000 and the Vite dev server on port 5173, then drives the sign up, login, logout, and protected-route flows in a real browser. Run `npx playwright install chromium` once to download the browser. If a server is already listening on either port it is reused, so stop your dev server first if you want the test database.
 
 ## Conventions
 

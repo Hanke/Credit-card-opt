@@ -1,7 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import type { Credentials } from '../../api/client'
-import { redirectAfterAuth } from '../../auth/redirectAfterAuth'
 import { Button, Input } from '../../components/ui'
 import { FormError } from './FormError'
 import { toFormErrors, type FormErrors } from './formErrors'
@@ -15,9 +13,6 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ submit, submitLabel, pendingLabel, passwordAutoComplete, passwordHint }: AuthFormProps) {
-  const navigate = useNavigate()
-  const location = useLocation()
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<FormErrors>({})
@@ -30,7 +25,6 @@ export function AuthForm({ submit, submitLabel, pendingLabel, passwordAutoComple
 
     try {
       await submit({ email, password })
-      navigate(redirectAfterAuth(location.state), { replace: true })
     } catch (error) {
       setErrors(toFormErrors(error))
       setSubmitting(false)

@@ -13,8 +13,8 @@ export function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  async function handleLogout() {
-    await logout()
+  function handleLogout() {
+    logout()
     navigate('/login', { replace: true })
   }
 
@@ -49,29 +49,21 @@ export function Navbar() {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-          {user ? (
-            <>
-              <span className="hidden items-center gap-2.5 sm:flex">
-                <span
-                  aria-hidden="true"
-                  className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-violet-500 text-xs font-semibold text-white uppercase"
-                >
-                  {user.email.charAt(0)}
-                </span>
-                <span className="max-w-48 truncate text-sm text-slate-600" title={user.email}>
-                  {user.email}
-                </span>
-              </span>
-              <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="Log out" title="Log out">
-                <Icon name="log-out" className="size-4" />
-                <span className="hidden sm:inline">Log out</span>
-              </Button>
-            </>
-          ) : (
-            <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>
-              Log in
-            </Button>
-          )}
+          <span className="hidden items-center gap-2.5 sm:flex">
+            <span
+              aria-hidden="true"
+              className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-violet-500 text-xs font-semibold text-white uppercase"
+            >
+              {user?.email.charAt(0)}
+            </span>
+            <span className="max-w-48 truncate text-sm text-slate-600" title={user?.email}>
+              {user?.email}
+            </span>
+          </span>
+          <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="Log out" title="Log out">
+            <Icon name="log-out" className="size-4" />
+            <span className="hidden sm:inline">Log out</span>
+          </Button>
         </div>
       </div>
     </header>

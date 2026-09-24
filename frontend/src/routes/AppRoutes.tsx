@@ -8,6 +8,7 @@ import { NotFoundPage } from '../pages/NotFoundPage'
 import { RecommendPage } from '../pages/RecommendPage'
 import { WalletPage } from '../pages/WalletPage'
 import { GuestRoute } from './GuestRoute'
+import { NotFoundLayout } from './NotFoundLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
 export function AppRoutes() {
@@ -29,7 +30,7 @@ export function AppRoutes() {
         </Route>
       </Route>
 
-      <Route element={<AuthLayout />}>
+      <Route element={<NotFoundLayout />}>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

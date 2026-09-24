@@ -23,11 +23,7 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler | null): voi
 }
 
 function handleUnauthorized(failedToken: string | null): void {
-  if (unauthorizedHandler) {
-    unauthorizedHandler(failedToken)
-  } else {
-    window.location.assign('/login')
-  }
+  unauthorizedHandler?.(failedToken)
 }
 
 export interface ApiRequestInit extends RequestInit {

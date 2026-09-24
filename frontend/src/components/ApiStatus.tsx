@@ -37,14 +37,18 @@ export function ApiStatus() {
       <Badge tone="danger" role="alert" title={status.message}>
         <span className="size-1.5 rounded-full bg-red-500" />
         Offline
+        <span className="sr-only">: {status.message}</span>
       </Badge>
     )
   }
 
+  const checkedAt = new Date(status.data.time).toLocaleTimeString()
+
   return (
-    <Badge tone="success" role="status" title={`Checked at ${new Date(status.data.time).toLocaleTimeString()}`}>
+    <Badge tone="success" role="status" aria-live="polite" title={`Checked at ${checkedAt}`}>
       <span className="size-1.5 rounded-full bg-emerald-500" />
       Connected
+      <span className="sr-only">, checked at {checkedAt}</span>
     </Badge>
   )
 }
