@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import type { Credentials } from '../../api'
-import { Button, Input } from '../../components/ui'
-import { FormError } from './FormError'
+import { Alert, Button, Input } from '../../components/ui'
 import { toFormErrors, type FormErrors } from './formErrors'
 
 interface AuthFormProps {
@@ -33,7 +32,7 @@ export function AuthForm({ submit, submitLabel, pendingLabel, passwordAutoComple
 
   return (
     <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
-      <FormError message={errors.form} />
+      {errors.form && <Alert message={errors.form} />}
       <Input
         label="Email"
         type="email"

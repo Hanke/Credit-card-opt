@@ -32,3 +32,7 @@ body {
 ::selection {
   @apply bg-brand-200 text-brand-950;
 }
+
+body:has(dialog[open]) {
+  overflow: hidden;
+}

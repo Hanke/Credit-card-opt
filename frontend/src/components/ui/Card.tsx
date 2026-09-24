@@ -1,14 +1,15 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from './cn'
 
-interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+interface CardProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
+  as?: 'div' | 'article' | 'section'
   title?: ReactNode
   description?: ReactNode
 }
 
-export function Card({ title, description, className, children, ...props }: CardProps) {
+export function Card({ as: Component = 'div', title, description, className, children, ...props }: CardProps) {
   return (
-    <div
+    <Component
       className={cn('rounded-2xl border border-slate-200/80 bg-white p-5 shadow-card sm:p-6', className)}
       {...props}
     >
@@ -19,6 +20,6 @@ export function Card({ title, description, className, children, ...props }: Card
         </div>
       )}
       {children}
-    </div>
+    </Component>
   )
 }
