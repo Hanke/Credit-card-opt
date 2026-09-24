@@ -182,7 +182,7 @@ How rewards are modelled:
   groceries and dining.
 - **`spend_cap_cents` is always annual**; monthly caps are multiplied by 12
   and the issuer's wording is kept in the rule notes. The MVP calculator
-  ignores caps but should surface them in its explanation.
+  ignores caps in the math but surfaces them in each result's explanation.
 
 Rates are a best-effort snapshot of public earn rates and are not fetched from
 issuers, so check `db/seeds/cards/<issuer>.rb` before relying on a specific
