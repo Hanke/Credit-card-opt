@@ -142,6 +142,53 @@ Trade-off: `localStorage` is readable by any script on the page, so an XSS
 vulnerability would expose the token. This is accepted for the MVP. A hardened
 version would move the token to an `HttpOnly` cookie with CSRF protection.
 
+## Seed data
+
+```sh
+cd backend && bin/rails db:seed
+```
+
+Seeds the reward currencies and a catalogue of roughly 65 Canadian consumer
+credit cards (Amex, TD, RBC, BMO, Scotiabank, CIBC, National Bank, Tangerine,
+Rogers, Neo, PC Financial, Simplii, Desjardins, MBNA, Brim, Canadian Tire,
+Home Trust, Walmart), each with a currency, a base earn rate, and dated
+category reward rules. Seeding is idempotent: currencies are keyed on name,
+cards on name, and rules on card + category + `effective_from`, so re-running
+`db:seed` refreshes existing rows instead of duplicating them. The data lives
+in `backend/db/seeds/reward_currencies.rb` and one file per issuer under
+`backend/db/seeds/cards/`, and is written through the
+`Seeds::UpsertRewardCurrency` and `Seeds::UpsertCreditCard` services.
+
+How rewards are modelled:
+
+- **Cash-back cards** use the `Cash Back` currency at 1 cent per point and
+  store the percentage as the earning rate (4% back is `4.0`), so $150 at 4.0
+  earns 600 points worth $6.00. WestJet dollars, Canadian Tire Money,
+  BonusDollars, Brim points and Walmart Reward Dollars follow the same
+  convention since they are worth one cent each.
+- **Points currencies** store points per dollar; the valuation lives on the
+  currency (`cents_per_point`: Membership Rewards 1.0, Aeroplan 1.5, Avion
+  1.0, Scene+ 1.0, BMO Rewards 0.7, CIBC Aventura 1.0, PC Optimum 0.1, TD
+  Rewards 0.5, Air Miles 10.5 per mile) with the rationale in `description`.
+- **Categories** come from `PurchaseCategories::ALL`. Streaming maps to
+  `entertainment`, Air Canada and WestJet bonuses to `flights`, and a card
+  whose travel bonus covers everything gets `travel`, `flights` and `hotels`
+  rules. Flat-rate cards get a single `general` rule at their flat rate.
+- **Merchant-specific rates** (Scene+ at Empire grocers, Loblaw banners,
+  Shoppers Drug Mart, Neo partners, Costco, Walmart) are described in `notes`
+  rather than modelled as rules, and recurring bill payments are not a
+  category.
+- **Tangerine** lets cardholders choose their categories; the seed picks
+  groceries and dining.
+- **`spend_cap_cents` is always annual**; monthly caps are multiplied by 12
+  and the issuer's wording is kept in the rule notes. The MVP calculator
+  ignores caps but should surface them in its explanation.
+
+Rates are a best-effort snapshot of public earn rates and are not fetched from
+issuers, so check `db/seeds/cards/<issuer>.rb` before relying on a specific
+number. `spec/db/seeds_spec.rb` loads the seeds and checks the invariants
+above.
+
 ## Tests
 
 ```sh
