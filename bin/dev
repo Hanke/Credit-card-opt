@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Starts the Rails API (port 3000) and the Vite dev server (port 5173) together.
-# Ctrl-C stops both.
+# Starts the Rails API (port 3000) and the Vite dev server (port 5173) together
+# via foreman, using the root Procfile.dev. Ctrl-C stops both.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-trap 'kill 0' EXIT INT TERM
+if ! command -v foreman >/dev/null 2>&1; then
+  echo "foreman is not installed. Install it with:" >&2
+  echo "  gem install foreman" >&2
+  echo "Or run the servers separately: 'cd backend && bin/rails server' and 'cd frontend && npm run dev'." >&2
+  exit 1
+fi
 
-(cd backend && bin/rails server -p 3000) &
-(cd frontend && npm run dev) &
-
-wait
+exec foreman start -f Procfile.dev "$@"

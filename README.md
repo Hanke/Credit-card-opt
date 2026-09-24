@@ -5,7 +5,7 @@ Monorepo with a Ruby on Rails JSON API and a React frontend.
 ```
 backend/   Rails 8.1 API-only app (PostgreSQL)
 frontend/  React 19 + TypeScript app built with Vite
-bin/dev    Runs both dev servers together
+bin/dev    Runs both dev servers together (foreman + Procfile.dev)
 ```
 
 ## Prerequisites
@@ -13,6 +13,7 @@ bin/dev    Runs both dev servers together
 - Ruby 3.4 (see `backend/.ruby-version`)
 - Node 22+
 - PostgreSQL running locally
+- foreman (`gem install foreman`) for `bin/dev`
 
 ## Setup
 
