@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import * as api from '../api/client'
-import type { Credentials, SessionResponse, User } from '../api/client'
+import * as api from '../api'
+import type { Credentials, SessionResponse, User } from '../api'
 import { AuthContext, type AuthContextValue } from './AuthContext'
 import { tokenStorage } from './tokenStorage'
 
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     api
       .getMe()
-      .then(({ user: currentUser }) => {
+      .then((currentUser) => {
         if (isCurrent()) setUser(currentUser)
       })
       .catch(() => {})

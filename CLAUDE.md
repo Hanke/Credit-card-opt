@@ -16,4 +16,4 @@ When a controller, model, or job starts accumulating logic, extract it into a se
 ## Conventions
 
 - All API routes live under `/api/v1`.
-- The frontend calls the API through `frontend/src/api/client.ts`.
+- The frontend calls the API through the modules in `frontend/src/api/`, imported from `src/api` (never `client.ts` directly, which lint enforces). `client.ts` holds the shared fetch transport.

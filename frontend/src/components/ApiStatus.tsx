@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getHealth, type HealthResponse } from '../api/client'
+import { getHealth, type HealthResponse } from '../api'
 import { Badge, Spinner } from './ui'
 
 type Status =

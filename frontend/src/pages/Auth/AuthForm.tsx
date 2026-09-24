@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import type { Credentials } from '../../api/client'
+import type { Credentials } from '../../api'
 import { Button, Input } from '../../components/ui'
 import { FormError } from './FormError'
 import { toFormErrors, type FormErrors } from './formErrors'

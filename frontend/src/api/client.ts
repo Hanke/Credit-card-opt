@@ -1,4 +1,5 @@
 import { tokenStorage } from '../auth/tokenStorage'
+import type { ApiErrorBody } from './types'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''
 
@@ -12,6 +13,10 @@ export class ApiError extends Error {
     this.status = status
     this.errors = errors
   }
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError
 }
 
 type UnauthorizedHandler = (failedToken: string | null) => void
@@ -63,64 +68,38 @@ export async function apiFetch<T>(path: string, init: ApiRequestInit = {}): Prom
   return (await response.json()) as T
 }
 
+export function apiGet<T>(path: string, init: ApiRequestInit = {}): Promise<T> {
+  return apiFetch<T>(path, { ...init, method: 'GET' })
+}
+
+export function apiPost<T>(path: string, body: unknown, init: ApiRequestInit = {}): Promise<T> {
+  return apiFetch<T>(path, { ...init, method: 'POST', body: JSON.stringify(body) })
+}
+
+export function apiDelete<T = void>(path: string, init: ApiRequestInit = {}): Promise<T> {
+  return apiFetch<T>(path, { ...init, method: 'DELETE' })
+}
+
+export function withQuery(path: string, params: Record<string, string | number | undefined>): string {
+  const query = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== '') query.set(key, String(value))
+  }
+  const encoded = query.toString()
+  if (!encoded) return path
+  return `${path}${path.includes('?') ? '&' : '?'}${encoded}`
+}
+
 async function readErrors(response: Response): Promise<string[]> {
   try {
     const body: unknown = await response.json()
-    if (body && typeof body === 'object' && 'errors' in body && Array.isArray(body.errors)) {
+    if (isApiErrorBody(body)) {
       return body.errors.filter((error): error is string => typeof error === 'string')
     }
   } catch {}
   return []
 }
 
-export interface HealthResponse {
-  status: string
-  time: string
-}
-
-export function getHealth(): Promise<HealthResponse> {
-  return apiFetch<HealthResponse>('/api/v1/health')
-}
-
-export interface User {
-  id: number
-  email: string
-  created_at: string
-}
-
-export interface Credentials {
-  email: string
-  password: string
-}
-
-export interface SessionResponse {
-  token: string
-  user: User
-}
-
-export function signup(credentials: Credentials): Promise<SessionResponse> {
-  return apiFetch<SessionResponse>('/api/v1/auth/signup', {
-    method: 'POST',
-    body: JSON.stringify(credentials),
-    skipUnauthorizedHandler: true,
-  })
-}
-
-export function login(credentials: Credentials): Promise<SessionResponse> {
-  return apiFetch<SessionResponse>('/api/v1/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(credentials),
-    skipUnauthorizedHandler: true,
-  })
-}
-
-export function logout(): Promise<void> {
-  return apiFetch<void>('/api/v1/auth/logout', {
-    method: 'DELETE',
-    skipUnauthorizedHandler: true,
-  })
-}
-
-export function getMe(): Promise<{ user: User }> {
-  return apiFetch<{ user: User }>('/api/v1/auth/me')
+function isApiErrorBody(body: unknown): body is ApiErrorBody {
+  return typeof body === 'object' && body !== null && 'errors' in body && Array.isArray(body.errors)
 }

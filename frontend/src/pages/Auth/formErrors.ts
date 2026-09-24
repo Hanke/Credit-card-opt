@@ -1,4 +1,4 @@
-import { ApiError } from '../../api/client'
+import { isApiError } from '../../api'
 
 export interface FormErrors {
   email?: string
@@ -13,7 +13,7 @@ function append(existing: string | undefined, message: string): string {
 }
 
 export function toFormErrors(error: unknown): FormErrors {
-  if (!(error instanceof ApiError) || error.errors.length === 0) {
+  if (!isApiError(error) || error.errors.length === 0) {
     return { form: GENERIC_ERROR }
   }
 
