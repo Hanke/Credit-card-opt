@@ -1,5 +1,5 @@
 import { PageHeader } from '../components/layout/PageHeader'
-import { Button, Card } from '../components/ui'
+import { Button, Card, EmptyState, Icon } from '../components/ui'
 
 export function WalletPage() {
   return (
@@ -7,10 +7,25 @@ export function WalletPage() {
       <PageHeader
         title="Wallet"
         description="The cards you carry."
-        actions={<Button>Add card</Button>}
+        actions={
+          <Button>
+            <Icon name="plus" className="size-4" />
+            Add card
+          </Button>
+        }
       />
-      <Card title="Coming soon" description="Wallet management will land in a later ticket.">
-        <p className="text-sm text-slate-600 dark:text-slate-400">No cards yet.</p>
+      <Card>
+        <EmptyState
+          icon="credit-card"
+          title="No cards yet"
+          description="Add the cards you carry and we will figure out which one to use for every purchase."
+          action={
+            <Button>
+              <Icon name="plus" className="size-4" />
+              Add your first card
+            </Button>
+          }
+        />
       </Card>
     </>
   )

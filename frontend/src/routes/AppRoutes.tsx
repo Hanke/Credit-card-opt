@@ -1,26 +1,35 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '../components/layout/AppShell'
 import { AuthLayout } from '../components/layout/AuthLayout'
+import { LoginPage } from '../pages/Auth/LoginPage'
+import { SignUpPage } from '../pages/Auth/SignUpPage'
 import { DashboardPage } from '../pages/DashboardPage'
-import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { RecommendPage } from '../pages/RecommendPage'
-import { SignupPage } from '../pages/SignupPage'
 import { WalletPage } from '../pages/WalletPage'
+import { GuestRoute } from './GuestRoute'
+import { ProtectedRoute } from './ProtectedRoute'
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+      <Route element={<GuestRoute />}>
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+        </Route>
       </Route>
 
-      <Route element={<AppShell />}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/wallet" element={<WalletPage />} />
-        <Route path="/recommend" element={<RecommendPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppShell />}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/wallet" element={<WalletPage />} />
+          <Route path="/recommend" element={<RecommendPage />} />
+        </Route>
+      </Route>
+
+      <Route element={<AuthLayout />}>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

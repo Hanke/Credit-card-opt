@@ -7,7 +7,6 @@ type Status =
   | { kind: 'ok'; data: HealthResponse }
   | { kind: 'error'; message: string }
 
-/** Small indicator showing whether the Rails API is reachable. */
 export function ApiStatus() {
   const [status, setStatus] = useState<Status>({ kind: 'loading' })
 
@@ -27,31 +26,25 @@ export function ApiStatus() {
 
   if (status.kind === 'loading') {
     return (
-      <span className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-        <Spinner size="sm" /> Checking API…
+      <span className="inline-flex items-center gap-2 text-sm text-slate-500">
+        <Spinner size="sm" /> Connecting…
       </span>
     )
   }
 
   if (status.kind === 'error') {
     return (
-      <span role="alert" className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-        <Badge tone="danger">API offline</Badge>
-        <span className="text-slate-500 dark:text-slate-400">{status.message}</span>
-      </span>
+      <Badge tone="danger" role="alert" title={status.message}>
+        <span className="size-1.5 rounded-full bg-red-500" />
+        Offline
+      </Badge>
     )
   }
 
   return (
-    <span
-      role="status"
-      aria-live="polite"
-      className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"
-    >
-      <Badge tone="success">API {status.data.status}</Badge>
-      <span className="text-slate-500 dark:text-slate-400">
-        as of {new Date(status.data.time).toLocaleTimeString()}
-      </span>
-    </span>
+    <Badge tone="success" role="status" title={`Checked at ${new Date(status.data.time).toLocaleTimeString()}`}>
+      <span className="size-1.5 rounded-full bg-emerald-500" />
+      Connected
+    </Badge>
   )
 }

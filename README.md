@@ -45,3 +45,9 @@ cd frontend && npm run lint && npm run build
 - All API routes live under `/api/v1` (`backend/config/routes.rb`).
 - The frontend talks to the API through `frontend/src/api/client.ts`. In development the Vite proxy handles the origin; in production set `VITE_API_URL`.
 - CORS is configured in `backend/config/initializers/cors.rb` and reads `FRONTEND_ORIGIN`.
+
+## Authentication
+
+The API issues a signed JWT on signup/login. The frontend stores it in `localStorage` (key `auth_token`), sends it as `Authorization: Bearer <token>` on every request, and calls `/api/v1/auth/me` on startup to restore the session across reloads. A 401 from any endpoint other than login, signup, or logout means the session is invalid: the token is cleared and the user is redirected to `/login`. A 401 from login or signup is a credentials error and is shown in the form. If the startup check fails for any other reason (network error, 5xx) the token is kept and the user is asked to log in again, so a valid session survives a temporary outage.
+
+Trade-off: `localStorage` is readable by any script on the page, so an XSS vulnerability would expose the token. This is accepted for the MVP. A hardened version would move the token to an `HttpOnly` cookie with CSRF protection.
