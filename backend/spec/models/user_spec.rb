@@ -30,6 +30,21 @@ RSpec.describe User, type: :model do
       expect { dup.save! }.to raise_error(ActiveRecord::RecordInvalid)
     end
 
+    it "requires passwords to be at least 8 characters" do
+      user = build(:user, password: "short")
+
+      expect(user).not_to be_valid
+      expect(user.errors[:password]).to include("is too short (minimum is 8 characters)")
+      expect(build(:user, password: "12345678")).to be_valid
+    end
+
+    it "does not re-validate password length when the password is not being changed" do
+      user = create(:user)
+      reloaded = User.find(user.id)
+
+      expect(reloaded).to be_valid
+    end
+
     it "requires password confirmation to match when provided" do
       user = build(:user, password: "supersecret", password_confirmation: "different")
 

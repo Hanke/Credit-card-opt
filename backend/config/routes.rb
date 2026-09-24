@@ -5,6 +5,13 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       get "health", to: "health#show"
+
+      scope :auth, controller: :auth, as: :auth do
+        post   "signup", action: :signup
+        post   "login",  action: :login
+        delete "logout", action: :logout
+        get    "me",     action: :me
+      end
     end
   end
 end
