@@ -1,0 +1,474 @@
+{
+  "title": "Credit Card Optimizer: an annotated walkthrough",
+  "settings": {
+    "voice": "Samantha",
+    "speechRate": 180
+  },
+  "scenes": [
+    {
+      "id": "intro",
+      "title": "Credit Card Optimizer",
+      "caption": "Tell it which cards you carry. At checkout, tell it what you are buying. It names the card that earns the most.",
+      "narration": "This is Credit Card Optimizer. You tell it which cards you carry, then at checkout you tell it what you are buying, and it names the card in your wallet that earns the most. This walkthrough goes screen by screen and explains why each one works the way it does and how it is built.",
+      "steps": [
+        {
+          "goto": "/login"
+        },
+        {
+          "card": {
+            "eyebrow": "Annotated walkthrough",
+            "title": "Credit Card Optimizer",
+            "subtitle": "Which card in your wallet earns the most on this purchase? Every screen, the reasoning behind it, and the code that backs it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "signup",
+      "title": "Creating an account",
+      "caption": "Just an email and a password. You stay signed in for seven days on this device.",
+      "narration": "Everything starts with an account, because a wallet only makes sense per person. Sign up asks for just an email and a password of at least eight characters. The API answers with a signed token that lasts seven days, and the browser keeps it locally, so you are not logging in every visit. On the backend the controller only parses the form and hands it to a register service, which creates the user and asks a second service to mint the token.",
+      "steps": [
+        {
+          "goto": "/signup"
+        },
+        {
+          "expectVisible": {
+            "role": "heading",
+            "name": "Create your account"
+          }
+        },
+        {
+          "fill": {
+            "target": {
+              "label": "Email"
+            },
+            "value": "{{email}}"
+          }
+        },
+        {
+          "fill": {
+            "target": {
+              "label": "Password"
+            },
+            "value": "{{password}}"
+          }
+        },
+        {
+          "highlight": {
+            "role": "button",
+            "name": "Create account"
+          },
+          "pause": 900
+        },
+        {
+          "unhighlight": true
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Create account"
+          }
+        },
+        {
+          "expectUrl": "/dashboard"
+        },
+        {
+          "expectVisible": {
+            "role": "heading",
+            "name": "Dashboard"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dashboard-empty",
+      "title": "The empty dashboard",
+      "caption": "Nothing works without a wallet, so the first screen has one job: get your first card added.",
+      "narration": "A brand new account lands on an empty dashboard. Rather than show a blank grid, the page swaps in an onboarding hero with a single call to action and a three step explanation of how the app works. The reason is simple. Nothing in the app is useful until at least one card is in the wallet, so the first screen exists only to get you there. The dashboard checks the wallet once and decides which layout to show.",
+      "steps": [
+        {
+          "highlight": {
+            "role": "region",
+            "name": "Get started"
+          },
+          "pause": 2500
+        },
+        {
+          "highlight": {
+            "role": "heading",
+            "name": "How it works"
+          },
+          "pause": 2500
+        },
+        {
+          "unhighlight": true
+        }
+      ]
+    },
+    {
+      "id": "add-cards",
+      "title": "Adding cards to the wallet",
+      "caption": "Search the catalogue by name or issuer. One click adds a card, and the same card cannot be added twice.",
+      "narration": "Adding a card is a search and a click. The search box queries the card catalogue by name or issuer, and every result has its own add button. Once a card is in the wallet its button turns into a disabled already-added state, so you cannot add the same card twice, and the database enforces that too. The catalogue search is its own service that returns only active cards, ordered by issuer and name, so the list is stable and easy to scan. Let us add three cards from different issuers so the comparison later has something to compare.",
+      "steps": [
+        {
+          "click": {
+            "role": "button",
+            "name": "Add your first card"
+          }
+        },
+        {
+          "expectVisible": {
+            "role": "dialog",
+            "name": "Add cards"
+          }
+        },
+        {
+          "fill": {
+            "target": {
+              "label": "Search cards"
+            },
+            "value": "Cobalt"
+          }
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Add Amex Cobalt"
+          }
+        },
+        {
+          "expectVisible": {
+            "role": "button",
+            "name": "Amex Cobalt already in wallet"
+          },
+          "pause": 800
+        },
+        {
+          "fill": {
+            "target": {
+              "label": "Search cards"
+            },
+            "value": "Aeroplan"
+          }
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Add TD Aeroplan Visa Infinite"
+          }
+        },
+        {
+          "expectVisible": {
+            "role": "button",
+            "name": "TD Aeroplan Visa Infinite already in wallet"
+          },
+          "pause": 800
+        },
+        {
+          "fill": {
+            "target": {
+              "label": "Search cards"
+            },
+            "value": "Avion"
+          }
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Add RBC Avion Visa Infinite"
+          }
+        },
+        {
+          "expectVisible": {
+            "role": "button",
+            "name": "RBC Avion Visa Infinite already in wallet"
+          },
+          "pause": 800
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Close"
+          }
+        },
+        {
+          "expectHidden": {
+            "role": "dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dashboard-cards",
+      "title": "The dashboard with a wallet",
+      "caption": "A quick purchase check up top, your first three cards below. The full list lives in the wallet.",
+      "narration": "With cards in the wallet the dashboard changes shape. The onboarding is gone, and instead you get a quick purchase check at the top and a summary of your cards underneath. The check form is the same component the recommend page uses, so validation and formatting behave identically in both places. The summary only shows the first three cards, because the dashboard is for acting, not for managing, and the full list lives one click away in the wallet.",
+      "steps": [
+        {
+          "expectVisible": {
+            "role": "list",
+            "name": "Your cards"
+          }
+        },
+        {
+          "highlight": {
+            "role": "list",
+            "name": "Your cards"
+          },
+          "pause": 2500
+        },
+        {
+          "highlight": {
+            "role": "region",
+            "name": "Check a purchase"
+          },
+          "pause": 2000
+        },
+        {
+          "unhighlight": true
+        }
+      ]
+    },
+    {
+      "id": "quick-check",
+      "title": "Checking a purchase",
+      "caption": "The amount formats itself as currency. The button stays off until both fields are valid.",
+      "narration": "Let us check a one hundred and fifty dollar dinner. The amount field formats itself as currency while you type, and the button stays disabled until both fields are valid, so a bad request never reaches the server. The server validates again anyway, because the API is a boundary, not the form. Submitting does not post from the dashboard. It navigates to the recommend page with the amount and category in the address bar, and that page does the request.",
+      "steps": [
+        {
+          "fill": {
+            "target": {
+              "label": "Amount"
+            },
+            "value": "150"
+          }
+        },
+        {
+          "select": {
+            "target": {
+              "label": "Category"
+            },
+            "value": "dining"
+          }
+        },
+        {
+          "highlight": {
+            "role": "button",
+            "name": "Find the best card"
+          },
+          "pause": 700
+        },
+        {
+          "unhighlight": true
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Find the best card"
+          }
+        },
+        {
+          "expectUrl": "/recommend?amount=150&category=dining"
+        },
+        {
+          "expectVisible": {
+            "role": "region",
+            "name": "Recommendation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "result",
+      "title": "The best card",
+      "caption": "Points = amount × the card's rate for this category. Value = points × what one point is worth.",
+      "narration": "The answer comes first, as a single hero card, because at a checkout you want the name of the card and nothing else. The Cobalt wins here with an estimated seven dollars and fifty cents. The engine works through every card in the wallet. For each one it finds the newest reward rule for this category that is in effect today, or falls back to the card's base rate. Points are the amount times the rate, and the dollar value is points times what one point of that currency is worth. Five times points on one hundred and fifty dollars is seven hundred and fifty points, at one cent each.",
+      "steps": [
+        {
+          "highlight": {
+            "role": "article",
+            "name": "Best card: Amex Cobalt"
+          },
+          "pause": 1500
+        }
+      ]
+    },
+    {
+      "id": "comparison",
+      "title": "How the other cards compare",
+      "caption": "Ranked by dollar value, not points. Aeroplan points are worth 1.5¢, so 150 of them beat 150 Avion points.",
+      "narration": "Below the winner is the full ranking, because trust comes from seeing the alternatives. Cards are sorted by estimated dollar value, with points and then name as tie breakers, so the order is always deterministic. Notice the two travel cards both earn one point per dollar on dining, yet the Aeroplan card ranks higher. That is the point valuation at work. Each rewards currency carries its own cents per point, and the engine converts everything into dollars before comparing, so a big points number never fools the ranking.",
+      "steps": [
+        {
+          "scroll": {
+            "target": {
+              "role": "table"
+            }
+          }
+        },
+        {
+          "highlight": {
+            "role": "table"
+          },
+          "pause": 1500
+        }
+      ]
+    },
+    {
+      "id": "explanation",
+      "title": "Showing the math",
+      "caption": "One plain-English sentence per card, built from the exact rule and rate the ranking used.",
+      "narration": "Every recommendation comes with a plain English reason. The winner's explanation is always visible, and the rest sit behind a see the math toggle so the page stays calm. The sentences are generated on the server by a dedicated explanation service, one per card, using the exact rule and rate the engine used. That matters because it means the words can never drift from the numbers. If a rule has an annual spend cap, the sentence says so, even though the cap is not yet part of the math.",
+      "steps": [
+        {
+          "scroll": {
+            "target": {
+              "role": "region",
+              "name": "Why this card"
+            }
+          }
+        },
+        {
+          "highlight": {
+            "role": "region",
+            "name": "Why this card"
+          },
+          "pause": 1200
+        },
+        {
+          "click": {
+            "text": "See the math for every card"
+          }
+        },
+        {
+          "expectVisible": {
+            "role": "list",
+            "name": "Explanation for each card"
+          }
+        },
+        {
+          "highlight": {
+            "role": "list",
+            "name": "Explanation for each card"
+          },
+          "pause": 1500
+        }
+      ]
+    },
+    {
+      "id": "shared-link",
+      "title": "A purchase is a URL",
+      "caption": "The purchase lives in the address bar, so a result can be reloaded, shared, or reached with the back button.",
+      "narration": "Because the purchase lives in the address bar, a recommendation is shareable and survives a reload. Opening a link with forty two fifty on groceries fills the form and fetches the result without any clicks. This was a deliberate choice over keeping the form in memory. The URL is the one piece of state a browser already knows how to save, share and go back to.",
+      "steps": [
+        {
+          "goto": "/recommend?amount=42.5&category=groceries"
+        },
+        {
+          "expectVisible": {
+            "role": "heading",
+            "name": "Best card for $42.50 on Groceries"
+          }
+        },
+        {
+          "highlight": {
+            "role": "heading",
+            "name": "Best card for $42.50 on Groceries"
+          },
+          "pause": 1500
+        }
+      ]
+    },
+    {
+      "id": "wallet",
+      "title": "Managing the wallet",
+      "caption": "Every tile shows the issuer and annual fee. Removing asks first, since it changes every future recommendation.",
+      "narration": "The wallet page is the full list. Every tile shows the issuer and the annual fee, and has its own remove button. Removing asks for confirmation, because dropping a card silently changes every future recommendation. The removal is optimistic, the tile disappears at once and comes back with an error if the server says no. Add, remove and list are three small services on the backend, so the recommendation engine can ask for the wallet without knowing how it is stored.",
+      "steps": [
+        {
+          "goto": "/wallet"
+        },
+        {
+          "expectVisible": {
+            "role": "heading",
+            "name": "Wallet"
+          }
+        },
+        {
+          "highlight": {
+            "role": "list",
+            "name": "Your cards"
+          },
+          "pause": 1500
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Remove RBC Avion Visa Infinite"
+          }
+        },
+        {
+          "expectVisible": {
+            "text": "Remove this card?"
+          }
+        },
+        {
+          "highlight": {
+            "role": "button",
+            "name": "Confirm remove RBC Avion Visa Infinite"
+          },
+          "pause": 1500
+        },
+        {
+          "unhighlight": true
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Cancel"
+          }
+        }
+      ]
+    },
+    {
+      "id": "logout",
+      "title": "Signing out",
+      "caption": "Signing out forgets the token on this device. Every page in the app sits behind a sign-in check.",
+      "narration": "Signing out simply forgets the token in the browser and returns you to the login screen. Every page inside the app sits behind a protected route, so without a token you cannot land on the dashboard, and with one you cannot land on the login page. That keeps the routing rules in one place instead of in every component.",
+      "steps": [
+        {
+          "click": {
+            "role": "button",
+            "name": "Log out"
+          }
+        },
+        {
+          "expectUrl": "/login"
+        },
+        {
+          "expectVisible": {
+            "role": "heading",
+            "name": "Welcome back"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outro",
+      "title": "How it is put together",
+      "caption": "Every backend operation is one small service with a single entry point. The frontend talks to the API through one shared module.",
+      "narration": "That is the whole app. The pattern to remember is that every operation on the backend is a service object with a single call method, controllers only parse and render, and the frontend talks to the API through one shared module. If you want to change how cards are ranked, there is exactly one file to open.",
+      "steps": [
+        {
+          "card": {
+            "eyebrow": "Under the hood",
+            "title": "Skinny controllers, service objects, one API client",
+            "subtitle": "The recommendation engine, the wallet and sign-in are each a handful of small services. Change how cards are ranked and there is exactly one file to open."
+          }
+        }
+      ]
+    }
+  ]
+}
