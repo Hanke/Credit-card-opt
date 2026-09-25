@@ -25,6 +25,7 @@ RSpec.describe "POST /api/v1/recommendations", type: :request do
       "card_name" => "Amex Cobalt",
       "issuer" => "American Express",
       "reward_currency" => "Membership Rewards",
+      "cash_back" => false,
       "earning_rate" => "5.0",
       "points_earned" => "750.0",
       "estimated_value_cents" => 750,

@@ -18,6 +18,7 @@ RSpec.describe CreditCardDetailSerializer do
         reward_currency: {
           id: card.reward_currency.id,
           name: "Aeroplan",
+          cash_back: false,
           cents_per_point: "1.5",
           description: "Generic points currency"
         },

@@ -2,13 +2,17 @@ import { expect, test, type Page } from '@playwright/test'
 import { signUp, storedToken, uniqueEmail } from './helpers'
 
 const COBALT = 'Amex Cobalt'
+const TD_AEROPLAN = 'TD Aeroplan Visa Infinite'
+const RBC_AVION = 'RBC Avion Visa Infinite'
 const RECOMMENDATIONS = '**/api/v1/recommendations'
 
 async function addCardViaApi(page: Page, name: string): Promise<void> {
   const headers = { Authorization: `Bearer ${await storedToken(page)}` }
   const search = await page.request.get(`/api/v1/cards?q=${encodeURIComponent(name)}`, { headers })
-  const { cards } = (await search.json()) as { cards: Array<{ id: number }> }
-  const added = await page.request.post('/api/v1/wallet', { headers, data: { credit_card_id: cards[0].id } })
+  const { cards } = (await search.json()) as { cards: Array<{ id: number; name: string }> }
+  const card = cards.find((candidate) => candidate.name === name)
+  if (!card) throw new Error(`Seeded card "${name}" not found`)
+  const added = await page.request.post('/api/v1/wallet', { headers, data: { credit_card_id: card.id } })
   expect(added.ok()).toBe(true)
 }
 
@@ -18,9 +22,23 @@ async function openRecommend(page: Page, path = '/recommend'): Promise<void> {
 }
 
 async function openWithCard(page: Page, path = '/recommend'): Promise<void> {
+  await openWithCards(page, [COBALT], path)
+}
+
+async function openWithCards(page: Page, names: string[], path = '/recommend'): Promise<void> {
   await signUp(page, uniqueEmail())
-  await addCardViaApi(page, COBALT)
+  for (const name of names) await addCardViaApi(page, name)
   await openRecommend(page, path)
+}
+
+function bestCard(page: Page) {
+  return page.getByRole('article', { name: `Best card: ${COBALT}` })
+}
+
+async function submitPurchase(page: Page, amount: string, category: string): Promise<void> {
+  await page.getByLabel('Amount').fill(amount)
+  await page.getByLabel('Category').selectOption(category)
+  await submitButton(page).click()
 }
 
 function countRecommendationRequests(page: Page): () => number {
@@ -64,14 +82,68 @@ test.describe('recommend', () => {
 
     const results = page.getByRole('region', { name: 'Recommendation' })
     await expect(results.getByRole('heading', { name: 'Best card for $150 on Dining' })).toBeVisible()
-    await expect(results.getByText(`Use ${COBALT}`)).toBeVisible()
+    await expect(bestCard(page).getByRole('heading', { name: COBALT })).toBeVisible()
+    await expect(bestCard(page)).toContainText('$7.50')
+    await expect(bestCard(page)).toContainText('750 pts')
+    await expect(bestCard(page)).toContainText('5x')
     await expect(page).toHaveURL(/\/recommend\?amount=150&category=dining$/)
     expect(requests()).toBe(1)
 
     await page.reload()
     await expect(page.getByLabel('Amount')).toHaveValue('150.00')
     await expect(page.getByLabel('Category')).toHaveValue('dining')
-    await expect(results.getByText(`Use ${COBALT}`)).toBeVisible()
+    await expect(bestCard(page).getByRole('heading', { name: COBALT })).toBeVisible()
+  })
+
+  test('a one-card wallet shows the result without a comparison table', async ({ page }) => {
+    await openWithCard(page)
+    await submitPurchase(page, '150', 'dining')
+
+    await expect(bestCard(page)).toBeVisible()
+    await expect(page.getByRole('table')).toHaveCount(0)
+    await expect(page.getByText('Nothing to compare yet')).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Why this card' })).toContainText(`${COBALT} earns 5x Membership Rewards on dining.`)
+    await expect(page.getByText('See the math for every card')).toHaveCount(0)
+
+    await page.getByRole('link', { name: 'Add cards' }).click()
+    await expect(page).toHaveURL(/\/wallet$/)
+  })
+
+  test('three cards at $150 on dining rank Cobalt, then TD Aeroplan, then RBC Avion', async ({ page }) => {
+    await openWithCards(page, [RBC_AVION, TD_AEROPLAN, COBALT])
+    await submitPurchase(page, '150', 'dining')
+
+    await expect(bestCard(page)).toContainText('$7.50')
+
+    const rows = page.getByRole('table').locator('tbody tr')
+    await expect(rows).toHaveCount(3)
+    await expect(rows.nth(0)).toContainText(COBALT)
+    await expect(rows.nth(0)).toContainText('$7.50')
+    await expect(rows.nth(0)).toContainText('+$5.25 vs next best')
+    await expect(rows.nth(0).getByText('Best', { exact: true })).toBeVisible()
+    await expect(rows.nth(1)).toContainText(TD_AEROPLAN)
+    await expect(rows.nth(1)).toContainText('$2.25')
+    await expect(rows.nth(2)).toContainText(RBC_AVION)
+    await expect(rows.nth(2)).toContainText('$1.50')
+    await expect(page.getByText('3 cards compared')).toBeVisible()
+
+    const explanation = page.getByRole('region', { name: 'Why this card' })
+    await expect(explanation).toContainText(`${COBALT} earns 5x Membership Rewards on dining.`)
+    await expect(explanation.getByRole('list', { name: 'Explanation for each card' })).toBeHidden()
+    await explanation.getByText('See the math for every card').click()
+    const items = explanation.getByRole('list', { name: 'Explanation for each card' }).getByRole('listitem')
+    await expect(items).toHaveCount(3)
+    await expect(items.nth(1)).toContainText(`${TD_AEROPLAN} has no dining bonus, so the base rate of 1x applies.`)
+  })
+
+  test('the comparison table scrolls inside its card on a phone-width screen', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 })
+    await openWithCards(page, [TD_AEROPLAN, COBALT])
+    await submitPurchase(page, '150', 'dining')
+
+    await expect(page.getByRole('table')).toBeVisible()
+    const pageOverflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
+    expect(pageOverflows).toBe(false)
   })
 
   test('a shared link with amount and category loads its recommendation', async ({ page }) => {
@@ -80,7 +152,7 @@ test.describe('recommend', () => {
     await expect(page.getByLabel('Amount')).toHaveValue('42.50')
     await expect(page.getByLabel('Category')).toHaveValue('groceries')
     await expect(page.getByRole('heading', { name: 'Best card for $42.50 on Groceries' })).toBeVisible()
-    await expect(page.getByText(`Use ${COBALT}`)).toBeVisible()
+    await expect(bestCard(page).getByRole('heading', { name: COBALT })).toBeVisible()
   })
 
   test('the amount is masked to currency with two decimals', async ({ page }) => {

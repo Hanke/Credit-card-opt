@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { CreditCard } from '../../api'
 import { Card, Icon } from '../ui'
 import { cn } from '../ui/cn'
-import { formatAnnualFee } from '../../lib/money'
+import { formatAnnualFee, formatRate } from '../../lib/format'
 import { CardBadges } from './CardBadges'
 
 interface CreditCardTileProps {
@@ -36,7 +36,9 @@ export function CreditCardTile({ card, footer, className }: CreditCardTileProps)
         </div>
         <div>
           <dt className="text-xs font-medium tracking-wide text-slate-400 uppercase">Earns</dt>
-          <dd className="mt-0.5 text-slate-700">{card.reward_currency.name}</dd>
+          <dd className="mt-0.5 text-slate-700">
+            {formatRate(card.base_earn_rate, card.reward_currency.cash_back)} {card.reward_currency.name}
+          </dd>
         </div>
       </dl>
 

@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe CreditCardSerializer do
   describe ".call" do
-    it "returns the summary attributes with the reward currency id and name" do
+    it "returns the summary attributes with the reward currency id, name, and cash-back flag" do
       card = build_stubbed(:credit_card, :amex_cobalt)
 
       expect(described_class.call(card)).to eq(
@@ -12,7 +12,7 @@ RSpec.describe CreditCardSerializer do
         network: "Amex",
         annual_fee_cents: 15_600,
         base_earn_rate: "1.0",
-        reward_currency: { id: card.reward_currency.id, name: card.reward_currency.name }
+        reward_currency: { id: card.reward_currency.id, name: card.reward_currency.name, cash_back: false }
       )
     end
   end

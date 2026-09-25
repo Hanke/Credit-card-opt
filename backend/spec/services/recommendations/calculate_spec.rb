@@ -15,6 +15,7 @@ RSpec.describe Recommendations::Calculate do
         card_name: "Amex Cobalt",
         issuer: "American Express",
         reward_currency: "Membership Rewards",
+        cash_back: false,
         earning_rate: BigDecimal("5"),
         points_earned: BigDecimal("750"),
         estimated_value_cents: 750,
@@ -71,7 +72,7 @@ RSpec.describe Recommendations::Calculate do
       groceries = described_class.call(amount: BigDecimal("150"), category: "groceries", cards: [ td_cash_back ], on: today).first
       dining = described_class.call(amount: BigDecimal("150"), category: "dining", cards: [ td_cash_back ], on: today).first
 
-      expect(groceries).to include(reward_currency: "Cash Back", points_earned: BigDecimal("450"), estimated_value_cents: 450, spend_cap_cents: 1_500_000)
+      expect(groceries).to include(reward_currency: "Cash Back", cash_back: true, points_earned: BigDecimal("450"), estimated_value_cents: 450, spend_cap_cents: 1_500_000)
       expect(dining).to include(points_earned: BigDecimal("150"), estimated_value_cents: 150, rule_applied: "Base earn rate")
     end
 

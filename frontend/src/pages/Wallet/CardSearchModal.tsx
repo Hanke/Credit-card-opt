@@ -4,7 +4,7 @@ import { CardBadges } from '../../components/cards/CardBadges'
 import { Alert, Button, Icon, Spinner } from '../../components/ui'
 import { controlClasses } from '../../components/ui/fieldHelpers'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
-import { formatAnnualFee } from '../../lib/money'
+import { formatAnnualFee } from '../../lib/format'
 
 const SEARCH_DEBOUNCE_MS = 300
 const GENERIC_ERROR = 'Something went wrong. Please try again.'

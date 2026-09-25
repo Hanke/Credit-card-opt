@@ -7,7 +7,7 @@ import { useRecommendation } from '../../hooks/useRecommendation'
 import { useWallet } from '../../hooks/useWallet'
 import { PurchaseForm } from './PurchaseForm'
 import { toPurchaseErrors } from './purchaseErrors'
-import { RecommendationResults } from './RecommendationResults'
+import { RecommendationSection } from './RecommendationSection'
 import { readPurchase, samePurchase, writePurchase, type PurchaseInput } from './purchaseSearchParams'
 
 export function RecommendationPage() {
@@ -57,7 +57,7 @@ export function RecommendationPage() {
           <Card title="What are you buying?" description="Enter the amount and pick a category.">
             <PurchaseForm initial={purchase} submitting={loading} errors={errors} onSubmit={handleSubmit} />
           </Card>
-          <RecommendationResults input={lastInput} data={data} loading={loading} />
+          <RecommendationSection input={lastInput} data={data} loading={loading} />
         </>
       )}
     </>

@@ -42,11 +42,12 @@ export type PurchaseCategory = (typeof PURCHASE_CATEGORIES)[number]
 export interface RewardCurrency {
   id: number
   name: string
+  cash_back: boolean
   cents_per_point: string
   description: string | null
 }
 
-export type RewardCurrencySummary = Pick<RewardCurrency, 'id' | 'name'>
+export type RewardCurrencySummary = Pick<RewardCurrency, 'id' | 'name' | 'cash_back'>
 
 export interface RewardRule {
   id: number
@@ -90,6 +91,7 @@ export interface Recommendation {
   card_name: string
   issuer: string
   reward_currency: string
+  cash_back: boolean
   earning_rate: string
   points_earned: string
   estimated_value_cents: number

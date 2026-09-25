@@ -19,7 +19,7 @@ RSpec.describe "GET /api/v1/wallet", type: :request do
       "name" => "Amex Cobalt",
       "active" => true,
       "added_at" => older.added_at.iso8601,
-      "reward_currency" => { "id" => card.reward_currency.id, "name" => card.reward_currency.name }
+      "reward_currency" => { "id" => card.reward_currency.id, "name" => card.reward_currency.name, "cash_back" => false }
     )
   end
 

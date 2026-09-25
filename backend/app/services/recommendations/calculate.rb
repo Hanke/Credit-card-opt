@@ -48,6 +48,7 @@ module Recommendations
         card_name: card.name,
         issuer: card.issuer,
         reward_currency: card.reward_currency.name,
+        cash_back: card.reward_currency.cash_back?,
         earning_rate: earning_rate,
         points_earned: points_earned,
         estimated_value_cents: estimated_value_cents,
