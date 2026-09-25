@@ -1,5 +1,5 @@
 import type { RecommendationRequest, RecommendationResponse } from '../../api'
-import { Card, Skeleton } from '../../components/ui'
+import { Card, SectionHeading, Skeleton } from '../../components/ui'
 import { formatDollars } from '../../lib/format'
 import { PURCHASE_CATEGORY_LABELS } from '../../lib/purchaseCategories'
 import { ComparisonTable } from './ComparisonTable'
@@ -17,9 +17,9 @@ export function RecommendationSection({ input, data, loading }: RecommendationSe
 
   return (
     <section aria-label="Recommendation" aria-busy={loading || undefined} className="mt-8">
-      <h2 className="mb-4 text-sm font-semibold tracking-wide text-slate-500 uppercase">
+      <SectionHeading className="mb-4">
         Best card for {formatDollars(input.amount)} on {PURCHASE_CATEGORY_LABELS[input.category]}
-      </h2>
+      </SectionHeading>
       {loading || !data ? <ResultSkeleton /> : <Results data={data} />}
     </section>
   )

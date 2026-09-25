@@ -28,3 +28,7 @@ export function formatRate(rate: string | number, cashBack: boolean): string {
 export function formatPoints(points: string | number): string {
   return `${plainNumber.format(Number(points))} pts`
 }
+
+export function formatCardCount(count: number): string {
+  return count === 1 ? '1 card' : `${count} cards`
+}

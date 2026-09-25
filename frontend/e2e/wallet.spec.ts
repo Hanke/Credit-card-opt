@@ -157,6 +157,17 @@ test.describe('wallet', () => {
     await page.mouse.click(5, 5)
     await expect(page.getByRole('dialog')).toHaveCount(0)
   })
+
+  test('closing the dialog after adding the first card moves focus to the header button', async ({ page }) => {
+    await openWallet(page)
+    await openSearch(page)
+    await addCard(page, COBALT)
+    await page.keyboard.press('Escape')
+    await expect(page.getByLabel('Search cards')).toHaveValue('')
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Add cards' })).toBeFocused()
+  })
 })
 
 test.describe('wallet on a phone', () => {

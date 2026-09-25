@@ -1,19 +1,19 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import type { PurchaseCategory } from '../../api'
-import { Alert, Button, Icon, Input, Select } from '../../components/ui'
+import { Alert, Button, Icon, Input, Select } from '../ui'
 import { formatAmount, maskAmount, validateAmount } from '../../lib/amountInput'
 import { PURCHASE_CATEGORY_OPTIONS } from '../../lib/purchaseCategories'
 import type { PurchaseErrors } from './purchaseErrors'
 import type { PurchaseInput } from './purchaseSearchParams'
 
 interface PurchaseFormProps {
-  initial: PurchaseInput | null
-  submitting: boolean
-  errors: PurchaseErrors
+  initial?: PurchaseInput | null
+  submitting?: boolean
+  errors?: PurchaseErrors
   onSubmit: (input: PurchaseInput) => void
 }
 
-export function PurchaseForm({ initial, submitting, errors, onSubmit }: PurchaseFormProps) {
+export function PurchaseForm({ initial = null, submitting = false, errors = {}, onSubmit }: PurchaseFormProps) {
   const [amount, setAmount] = useState(initial ? formatAmount(initial.amount) : '')
   const [amountTouched, setAmountTouched] = useState(false)
   const [category, setCategory] = useState<PurchaseCategory | ''>(initial?.category ?? '')

@@ -1,20 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
-import { signUp, storedToken, uniqueEmail } from './helpers'
+import { addCardViaApi, signUp, uniqueEmail } from './helpers'
 
 const COBALT = 'Amex Cobalt'
 const TD_AEROPLAN = 'TD Aeroplan Visa Infinite'
 const RBC_AVION = 'RBC Avion Visa Infinite'
 const RECOMMENDATIONS = '**/api/v1/recommendations'
-
-async function addCardViaApi(page: Page, name: string): Promise<void> {
-  const headers = { Authorization: `Bearer ${await storedToken(page)}` }
-  const search = await page.request.get(`/api/v1/cards?q=${encodeURIComponent(name)}`, { headers })
-  const { cards } = (await search.json()) as { cards: Array<{ id: number; name: string }> }
-  const card = cards.find((candidate) => candidate.name === name)
-  if (!card) throw new Error(`Seeded card "${name}" not found`)
-  const added = await page.request.post('/api/v1/wallet', { headers, data: { credit_card_id: card.id } })
-  expect(added.ok()).toBe(true)
-}
 
 async function openRecommend(page: Page, path = '/recommend'): Promise<void> {
   await page.goto(path)

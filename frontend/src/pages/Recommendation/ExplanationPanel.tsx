@@ -1,6 +1,8 @@
 import { useId } from 'react'
 import type { Recommendation } from '../../api'
 import { Card, Icon } from '../../components/ui'
+import { cn } from '../../components/ui/cn'
+import { FOCUS_RING } from '../../components/ui/focusRing'
 import { formatCentsExact } from '../../lib/format'
 import { RankBadge } from './RankBadge'
 
@@ -30,7 +32,12 @@ export function ExplanationPanel({ ranked }: ExplanationPanelProps) {
 
       {others.length > 0 && (
         <details className="group mt-4">
-          <summary className="flex cursor-pointer list-none items-center gap-1.5 text-sm font-medium text-brand-600 select-none hover:text-brand-700 [&::-webkit-details-marker]:hidden">
+          <summary
+            className={cn(
+              'flex w-fit cursor-pointer list-none items-center gap-1.5 rounded-sm text-sm font-medium text-brand-600 select-none hover:text-brand-700 [&::-webkit-details-marker]:hidden',
+              FOCUS_RING,
+            )}
+          >
             <Icon name="arrow-right" className="size-4 transition-transform group-open:rotate-90" />
             See the math for every card
           </summary>

@@ -16,7 +16,7 @@ export function CreditCardTile({ card, footer, className }: CreditCardTileProps)
     <Card
       as="article"
       aria-label={card.name}
-      className={cn('flex flex-col p-5 transition-colors hover:border-slate-300', className)}
+      className={cn('flex h-full flex-col p-5 transition-colors hover:border-slate-300', className)}
     >
       <div className="flex items-start justify-between gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-500 text-white shadow-sm">

@@ -1,20 +1,22 @@
-import { useState } from 'react'
+import { useRef } from 'react'
 import { PageHeader } from '../../components/layout/PageHeader'
-import { Button, Card, EmptyState, Icon, Skeleton, Toast } from '../../components/ui'
+import { Button, Card, EmptyState, Icon, LoadingRegion, Toast } from '../../components/ui'
 import { WalletErrorAlert } from '../../components/wallet/WalletErrorAlert'
+import { WalletSkeleton } from '../../components/wallet/WalletSkeleton'
+import { useDisclosure } from '../../hooks/useDisclosure'
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
 import { useToast } from '../../hooks/useToast'
 import { useWallet } from '../../hooks/useWallet'
+import { formatCardCount } from '../../lib/format'
 import { CardSearchModal } from './CardSearchModal'
 import { WalletCard } from './WalletCard'
 
-function countLabel(count: number): string {
-  return count === 1 ? '1 card in your wallet' : `${count} cards in your wallet`
-}
-
 export function WalletPage() {
+  useDocumentTitle('Wallet')
   const wallet = useWallet()
   const { toast, dismiss, showError } = useToast()
-  const [searchOpen, setSearchOpen] = useState(false)
+  const search = useDisclosure()
+  const addCardsButton = useRef<HTMLButtonElement>(null)
   const ready = !wallet.loading && !wallet.error
 
   async function handleRemove(creditCardId: number) {
@@ -26,16 +28,13 @@ export function WalletPage() {
     }
   }
 
-  const openSearch = () => setSearchOpen(true)
-  const closeSearch = () => setSearchOpen(false)
-
   return (
     <>
       <PageHeader
         title="Wallet"
-        description={ready ? countLabel(wallet.cards.length) : 'The cards you carry.'}
+        description={ready ? `${formatCardCount(wallet.cards.length)} in your wallet` : 'The cards you carry.'}
         actions={
-          <Button onClick={openSearch} disabled={!ready}>
+          <Button ref={addCardsButton} onClick={search.show} disabled={!ready}>
             <Icon name="plus" className="size-4" />
             Add cards
           </Button>
@@ -45,7 +44,9 @@ export function WalletPage() {
       {wallet.error && !wallet.loading && <WalletErrorAlert onRetry={wallet.reload} />}
 
       {wallet.loading ? (
-        <WalletSkeleton />
+        <LoadingRegion label="Loading your wallet">
+          <WalletSkeleton />
+        </LoadingRegion>
       ) : wallet.cards.length === 0 ? (
         !wallet.error && (
           <Card>
@@ -54,7 +55,7 @@ export function WalletPage() {
               title="No cards yet"
               description="Add the cards you carry and we will figure out which one to use for every purchase."
               action={
-                <Button onClick={openSearch}>
+                <Button onClick={search.show}>
                   <Icon name="plus" className="size-4" />
                   Add your first card
                 </Button>
@@ -73,34 +74,14 @@ export function WalletPage() {
       )}
 
       <CardSearchModal
-        open={searchOpen}
-        onClose={closeSearch}
+        open={search.open}
+        onClose={search.hide}
+        fallbackFocus={addCardsButton}
         inWallet={wallet.has}
         onAdd={wallet.add}
       />
 
       {toast && <Toast message={toast.message} tone={toast.tone} onDismiss={dismiss} />}
     </>
-  )
-}
-
-function WalletSkeleton() {
-  return (
-    <div role="status" aria-label="Loading your wallet" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 3 }, (_, index) => (
-        <Card key={index} className="p-5">
-          <div className="flex items-start justify-between">
-            <Skeleton className="size-10 rounded-xl" />
-            <Skeleton className="h-5 w-24 rounded-full" />
-          </div>
-          <Skeleton className="mt-4 h-5 w-3/4" />
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <Skeleton className="h-9" />
-            <Skeleton className="h-9" />
-          </div>
-          <Skeleton className="mt-5 h-8 w-24" />
-        </Card>
-      ))}
-    </div>
   )
 }

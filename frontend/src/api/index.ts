@@ -1,7 +1,6 @@
 export { ApiError, isApiError, setUnauthorizedHandler } from './client'
 export * from './types'
 export * from './auth'
-export * from './health'
 export * from './cards'
 export * from './wallet'
 export * from './recommendations'

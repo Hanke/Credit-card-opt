@@ -1,6 +1,8 @@
 import { Icon, LinkButton } from '../components/ui'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export function NotFoundPage() {
+  useDocumentTitle('Page not found')
   return (
     <div className="text-center">
       <p className="text-sm font-semibold text-brand-600">404</p>

@@ -1,4 +1,5 @@
 import { cn } from './cn'
+import { FOCUS_RING } from './focusRing'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'inverse'
 export type ButtonSize = 'sm' | 'md' | 'lg'
@@ -22,7 +23,7 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 export function buttonClasses(variant: ButtonVariant, size: ButtonSize, className?: string): string {
   return cn(
     'inline-flex items-center justify-center gap-2 rounded-lg font-medium whitespace-nowrap transition-colors',
-    'focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none',
+    FOCUS_RING,
     'disabled:cursor-not-allowed disabled:opacity-60',
     VARIANT_CLASSES[variant],
     SIZE_CLASSES[size],

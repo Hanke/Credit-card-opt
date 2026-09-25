@@ -14,11 +14,6 @@ export interface SessionResponse {
   user: User
 }
 
-export interface HealthResponse {
-  status: string
-  time: string
-}
-
 export interface ApiErrorBody {
   errors: string[]
 }

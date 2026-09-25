@@ -1,8 +1,10 @@
 import { useAuth } from '../../hooks/useAuth'
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
 import { AuthCard } from './AuthCard'
 import { AuthForm } from './AuthForm'
 
 export function LoginPage() {
+  useDocumentTitle('Log in')
   const { login } = useAuth()
 
   return (

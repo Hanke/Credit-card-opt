@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { TextLink } from '../../components/ui'
 
 interface AuthCardProps {
   title: string
@@ -22,13 +23,9 @@ export function AuthCard({ title, description, footerText, footerLinkLabel, foot
       {children}
       <p className="mt-8 text-center text-sm text-slate-500">
         {footerText}{' '}
-        <Link
-          to={footerLinkTo}
-          state={location.state}
-          className="font-medium text-brand-600 hover:text-brand-700 hover:underline"
-        >
+        <TextLink to={footerLinkTo} state={location.state} className="hover:underline">
           {footerLinkLabel}
-        </Link>
+        </TextLink>
       </p>
     </div>
   )

@@ -1,5 +1,5 @@
 import type { Recommendation } from '../../api'
-import { Badge, Card, Icon } from '../../components/ui'
+import { Badge, HeroCard, Icon } from '../../components/ui'
 import { formatCentsExact, formatPoints, formatRate } from '../../lib/format'
 
 const TRANSLUCENT_BADGE = 'bg-white/15 text-white ring-white/25'
@@ -12,13 +12,8 @@ export function RecommendationResult({ recommendation }: RecommendationResultPro
   const rate = formatRate(recommendation.earning_rate, recommendation.cash_back)
 
   return (
-    <Card
-      as="article"
-      aria-label={`Best card: ${recommendation.card_name}`}
-      className="relative overflow-hidden border-transparent bg-gradient-to-br from-brand-600 to-violet-600 text-white"
-    >
-      <div className="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full bg-white/10 blur-3xl" />
-      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+    <HeroCard as="article" aria-label={`Best card: ${recommendation.card_name}`}>
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="flex items-center gap-1.5 text-sm font-medium text-white/75">
             <Icon name="sparkles" className="size-4" />
@@ -46,6 +41,6 @@ export function RecommendationResult({ recommendation }: RecommendationResultPro
           </p>
         </div>
       </div>
-    </Card>
+    </HeroCard>
   )
 }

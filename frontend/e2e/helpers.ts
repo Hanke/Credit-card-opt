@@ -35,3 +35,22 @@ export function storedToken(page: Page): Promise<string | null> {
 export function setStoredToken(page: Page, value: string): Promise<void> {
   return page.evaluate((token) => localStorage.setItem('auth_token', token), value)
 }
+
+export async function addCardViaApi(page: Page, name: string): Promise<void> {
+  const headers = { Authorization: `Bearer ${await storedToken(page)}` }
+  const search = await page.request.get(`/api/v1/cards?q=${encodeURIComponent(name)}`, { headers })
+  const { cards } = (await search.json()) as { cards: Array<{ id: number; name: string }> }
+  const card = cards.find((candidate) => candidate.name === name)
+  if (!card) throw new Error(`Seeded card "${name}" not found`)
+  const added = await page.request.post('/api/v1/wallet', { headers, data: { credit_card_id: card.id } })
+  expect(added.ok()).toBe(true)
+}
+
+export function collectConsoleErrors(page: Page): () => string[] {
+  const errors: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text())
+  })
+  page.on('pageerror', (error) => errors.push(error.message))
+  return () => errors
+}

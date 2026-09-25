@@ -1,9 +1,10 @@
-import { useEffect, useId, useRef, useState, type MouseEvent, type SyntheticEvent } from 'react'
+import { useEffect, useId, useRef, useState, type MouseEvent, type RefObject, type SyntheticEvent } from 'react'
 import { isApiError, searchCards, type CreditCard } from '../../api'
 import { CardBadges } from '../../components/cards/CardBadges'
 import { Alert, Button, Icon, Spinner } from '../../components/ui'
 import { controlClasses } from '../../components/ui/fieldHelpers'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import { focusIfLost } from '../../lib/focus'
 import { formatAnnualFee } from '../../lib/format'
 
 const SEARCH_DEBOUNCE_MS = 300
@@ -14,6 +15,7 @@ type SearchOutcome = { query: string } & ({ status: 'ok'; cards: CreditCard[] } 
 interface CardSearchModalProps {
   open: boolean
   onClose: () => void
+  fallbackFocus: RefObject<HTMLElement | null>
   inWallet: (creditCardId: number) => boolean
   onAdd: (card: CreditCard) => Promise<unknown>
 }
@@ -22,12 +24,12 @@ function errorMessage(error: unknown): string {
   return isApiError(error) && error.errors.length > 0 ? error.errors[0] : GENERIC_ERROR
 }
 
-export function CardSearchModal({ open, onClose, inWallet, onAdd }: CardSearchModalProps) {
+export function CardSearchModal({ open, ...props }: CardSearchModalProps) {
   if (!open) return null
-  return <CardSearchDialog onClose={onClose} inWallet={inWallet} onAdd={onAdd} />
+  return <CardSearchDialog {...props} />
 }
 
-function CardSearchDialog({ onClose, inWallet, onAdd }: Omit<CardSearchModalProps, 'open'>) {
+function CardSearchDialog({ onClose, fallbackFocus, inWallet, onAdd }: Omit<CardSearchModalProps, 'open'>) {
   const titleId = useId()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -65,6 +67,11 @@ function CardSearchDialog({ onClose, inWallet, onAdd }: Omit<CardSearchModalProp
     setQuery('')
   }
 
+  function handleClose() {
+    onClose()
+    focusIfLost(fallbackFocus.current)
+  }
+
   function handleBackdropClick(event: MouseEvent<HTMLDialogElement>) {
     if (event.target === event.currentTarget) event.currentTarget.close()
   }
@@ -86,7 +93,7 @@ function CardSearchDialog({ onClose, inWallet, onAdd }: Omit<CardSearchModalProp
       ref={dialogRef}
       aria-labelledby={titleId}
       onCancel={handleCancel}
-      onClose={onClose}
+      onClose={handleClose}
       onClick={handleBackdropClick}
       className="fixed inset-0 mx-auto mt-auto mb-0 max-h-[88svh] w-full max-w-2xl flex-col rounded-t-2xl bg-white p-0 text-slate-700 shadow-float backdrop:bg-slate-900/50 backdrop:backdrop-blur-sm open:flex sm:my-auto sm:max-h-[80vh] sm:w-[calc(100%-3rem)] sm:rounded-2xl"
     >

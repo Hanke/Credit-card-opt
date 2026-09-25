@@ -1,16 +1,24 @@
 import { useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../../components/layout/PageHeader'
-import { Card, EmptyState, Icon, LinkButton, Skeleton } from '../../components/ui'
+import { PurchaseForm } from '../../components/purchase/PurchaseForm'
+import { PurchaseFormSkeleton } from '../../components/purchase/PurchaseFormSkeleton'
+import { toPurchaseErrors } from '../../components/purchase/purchaseErrors'
+import {
+  readPurchase,
+  samePurchase,
+  writePurchase,
+  type PurchaseInput,
+} from '../../components/purchase/purchaseSearchParams'
+import { Card, EmptyState, Icon, LinkButton, LoadingRegion } from '../../components/ui'
 import { WalletErrorAlert } from '../../components/wallet/WalletErrorAlert'
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
 import { useRecommendation } from '../../hooks/useRecommendation'
 import { useWallet } from '../../hooks/useWallet'
-import { PurchaseForm } from './PurchaseForm'
-import { toPurchaseErrors } from './purchaseErrors'
 import { RecommendationSection } from './RecommendationSection'
-import { readPurchase, samePurchase, writePurchase, type PurchaseInput } from './purchaseSearchParams'
 
 export function RecommendationPage() {
+  useDocumentTitle('Recommend')
   const wallet = useWallet()
   const [searchParams, setSearchParams] = useSearchParams()
   const purchase = useMemo(() => readPurchase(searchParams), [searchParams])
@@ -35,7 +43,9 @@ export function RecommendationPage() {
       {wallet.error && !wallet.loading && <WalletErrorAlert onRetry={wallet.reload} />}
 
       {wallet.loading ? (
-        <FormSkeleton />
+        <LoadingRegion label="Loading your wallet">
+          <PurchaseFormSkeleton />
+        </LoadingRegion>
       ) : wallet.cards.length === 0 ? (
         !wallet.error && (
           <Card>
@@ -61,19 +71,5 @@ export function RecommendationPage() {
         </>
       )}
     </>
-  )
-}
-
-function FormSkeleton() {
-  return (
-    <Card role="status" aria-label="Loading your wallet">
-      <Skeleton className="h-6 w-48" />
-      <Skeleton className="mt-2 h-4 w-64" />
-      <div className="mt-6 grid gap-4 sm:grid-cols-[1fr_1fr_auto]">
-        <Skeleton className="h-11" />
-        <Skeleton className="h-11" />
-        <Skeleton className="h-11 w-44" />
-      </div>
-    </Card>
   )
 }

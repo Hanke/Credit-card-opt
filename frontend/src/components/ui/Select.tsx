@@ -27,12 +27,7 @@ export function Select({
 }: SelectProps) {
   const generatedId = useId()
   const selectId = id ?? generatedId
-
-  // With a disabled placeholder and no explicit value, the browser would
-  // otherwise pre-select the first real option. Default to the placeholder.
-  const isUncontrolled = value === undefined
-  const resolvedDefault =
-    isUncontrolled && defaultValue === undefined && placeholder ? '' : defaultValue
+  const startsOnPlaceholder = value === undefined && defaultValue === undefined && Boolean(placeholder)
 
   return (
     <Field id={selectId} label={label} error={error}>
@@ -42,7 +37,7 @@ export function Select({
         aria-describedby={error ? errorId(selectId) : undefined}
         className={controlClasses(error, className)}
         value={value}
-        defaultValue={resolvedDefault}
+        defaultValue={startsOnPlaceholder ? '' : defaultValue}
         {...props}
       >
         {placeholder && (
