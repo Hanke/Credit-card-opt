@@ -1,6 +1,4 @@
 module Auth
-  # Verifies a JWT issued by Auth::IssueToken and returns the matching user.
-  # Returns nil for an expired, tampered, malformed, or unknown-user token.
   class DecodeToken
     def self.call(token)
       new(token).call
@@ -30,7 +28,6 @@ module Auth
       nil
     end
 
-    # Resolves to credentials.secret_key_base (or SECRET_KEY_BASE in production).
     def secret
       Rails.application.secret_key_base
     end

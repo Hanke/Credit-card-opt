@@ -1,6 +1,4 @@
 module Auth
-  # Mints a signed JWT for a user. The token carries the user id as `sub`
-  # and expires after TTL.
   class IssueToken
     ALGORITHM = "HS256"
     TTL = 7.days
@@ -30,7 +28,6 @@ module Auth
       }
     end
 
-    # Resolves to credentials.secret_key_base (or SECRET_KEY_BASE in production).
     def secret
       Rails.application.secret_key_base
     end

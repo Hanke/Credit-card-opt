@@ -1,6 +1,4 @@
 module Cards
-  # Loads an active card with its currency and current reward rules.
-  # Raises ActiveRecord::RecordNotFound for unknown or inactive ids.
   class Find
     def self.call(id:)
       new(id: id).call

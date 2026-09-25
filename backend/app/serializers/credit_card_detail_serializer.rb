@@ -1,5 +1,3 @@
-# Detail shape used by the show endpoint: the summary plus notes, the full
-# reward currency, and the reward rules currently in effect.
 class CreditCardDetailSerializer < ApplicationSerializer
   def call
     CreditCardSerializer.call(record).merge(

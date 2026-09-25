@@ -24,13 +24,13 @@ RSpec.describe "POST /api/v1/recommendations", type: :request do
       "credit_card_id" => cobalt.id,
       "card_name" => "Amex Cobalt",
       "issuer" => "American Express",
-      "reward_currency" => cobalt.reward_currency.name,
+      "reward_currency" => "Membership Rewards",
       "earning_rate" => "5.0",
       "points_earned" => "750.0",
       "estimated_value_cents" => 750,
       "rule_applied" => "Dining rule",
       "spend_cap_cents" => nil,
-      "explanation" => "Amex Cobalt earns 5x #{cobalt.reward_currency.name} on dining. 150 × 5 = 750 pts ≈ $7.50"
+      "explanation" => "Amex Cobalt earns 5x Membership Rewards on dining. 150 × 5 = 750 pts ≈ $7.50"
     )
     expect(body.fetch("comparisons")).to contain_exactly(a_hash_including("credit_card_id" => aeroplan.id, "estimated_value_cents" => 225))
   end
@@ -45,14 +45,14 @@ RSpec.describe "POST /api/v1/recommendations", type: :request do
     expect(body.fetch("comparisons").map { |c| c["credit_card_id"] }).not_to include(body.dig("recommendation", "credit_card_id"))
   end
 
-  it "only considers the given user_card_ids and ignores ids the user does not own" do
+  it "only considers the given credit_card_ids and ignores ids the user does not own" do
     create(:user_card, user: user, credit_card: aeroplan)
     create(:user_card, user: user, credit_card: cobalt)
     create(:user_card, credit_card: create(:credit_card, :pc_financial_mastercard))
     foreign = create(:user_card).credit_card
 
     post api_v1_recommendations_path,
-         params: { amount: 150, category: "dining", user_card_ids: [ aeroplan.id, foreign.id ] },
+         params: { amount: 150, category: "dining", credit_card_ids: [ aeroplan.id, foreign.id ] },
          headers: headers, as: :json
 
     expect(response).to have_http_status(:ok)
@@ -64,7 +64,7 @@ RSpec.describe "POST /api/v1/recommendations", type: :request do
     create(:user_card, user: user, credit_card: aeroplan)
     foreign = create(:user_card).credit_card
 
-    post api_v1_recommendations_path, params: { amount: 150, category: "dining", user_card_ids: [ foreign.id ] }, headers: headers, as: :json
+    post api_v1_recommendations_path, params: { amount: 150, category: "dining", credit_card_ids: [ foreign.id ] }, headers: headers, as: :json
 
     expect(response).to have_http_status(:unprocessable_content)
     expect(response.parsed_body).to eq("errors" => [ "None of the selected cards are in your wallet" ])
@@ -105,13 +105,13 @@ RSpec.describe "POST /api/v1/recommendations", type: :request do
     end
   end
 
-  it "returns 422 for user_card_ids that are not whole numbers" do
+  it "returns 422 for credit_card_ids that are not whole numbers" do
     create(:user_card, user: user, credit_card: cobalt)
 
-    post api_v1_recommendations_path, params: { amount: 10, category: "dining", user_card_ids: [ "abc" ] }, headers: headers, as: :json
+    post api_v1_recommendations_path, params: { amount: 10, category: "dining", credit_card_ids: [ "abc" ] }, headers: headers, as: :json
 
     expect(response).to have_http_status(:unprocessable_content)
-    expect(response.parsed_body).to eq("errors" => [ "User card ids must be whole numbers" ])
+    expect(response.parsed_body).to eq("errors" => [ "Credit card ids must be whole numbers" ])
   end
 
   it "returns 401 without a token" do

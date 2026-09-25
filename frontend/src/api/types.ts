@@ -82,7 +82,7 @@ export interface WalletCard extends CreditCard {
 export interface RecommendationRequest {
   amount: number
   category: PurchaseCategory
-  user_card_ids?: number[]
+  credit_card_ids?: number[]
 }
 
 export interface Recommendation {

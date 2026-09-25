@@ -50,10 +50,30 @@ RSpec.describe Recommendations::ForPurchase do
       expect(result.comparisons).to eq([])
     end
 
+    it "only ranks cards in the current user's wallet" do
+      add_to_wallet(aeroplan)
+      create(:user_card, credit_card: cobalt)
+      create(:user_card, credit_card: pc)
+
+      result = described_class.call(user: user, amount: 150, category: "dining")
+
+      expect(result.recommendation).to include(credit_card_id: aeroplan.id)
+      expect(result.comparisons).to eq([])
+    end
+
+    it "splits the ranked list into one recommendation and the remaining comparisons in order" do
+      add_to_wallet(cobalt, aeroplan, pc)
+
+      result = described_class.call(user: user, amount: 150, category: "dining")
+
+      expect(result.recommendation[:estimated_value_cents]).to eq(750)
+      expect(result.comparisons.map { |c| c[:estimated_value_cents] }).to eq([ 225, 150 ])
+    end
+
     it "limits the calculation to the given card ids" do
       add_to_wallet(cobalt, aeroplan, pc)
 
-      result = described_class.call(user: user, amount: 150, category: "dining", user_card_ids: [ aeroplan.id, pc.id ])
+      result = described_class.call(user: user, amount: 150, category: "dining", credit_card_ids: [ aeroplan.id, pc.id ])
 
       expect(result.recommendation).to include(credit_card_id: aeroplan.id)
       expect(result.comparisons.map { |c| c[:credit_card_id] }).to eq([ pc.id ])
@@ -63,7 +83,7 @@ RSpec.describe Recommendations::ForPurchase do
       add_to_wallet(aeroplan)
       create(:user_card, credit_card: cobalt)
 
-      result = described_class.call(user: user, amount: 150, category: "dining", user_card_ids: [ cobalt.id, aeroplan.id, 0 ])
+      result = described_class.call(user: user, amount: 150, category: "dining", credit_card_ids: [ cobalt.id, aeroplan.id, 0 ])
 
       expect(result).to be_success
       expect(result.recommendation).to include(credit_card_id: aeroplan.id)
@@ -74,7 +94,7 @@ RSpec.describe Recommendations::ForPurchase do
       add_to_wallet(aeroplan)
       create(:user_card, credit_card: cobalt)
 
-      result = described_class.call(user: user, amount: 150, category: "dining", user_card_ids: [ cobalt.id ])
+      result = described_class.call(user: user, amount: 150, category: "dining", credit_card_ids: [ cobalt.id ])
 
       expect(result).not_to be_success
       expect(result.errors).to eq([ "None of the selected cards are in your wallet" ])
@@ -93,7 +113,7 @@ RSpec.describe Recommendations::ForPurchase do
       add_to_wallet(cobalt, aeroplan)
 
       wallet_queries = count_queries(matching: /FROM "user_cards"/) do
-        described_class.call(user: user, amount: 150, category: "dining", user_card_ids: [ cobalt.id ])
+        described_class.call(user: user, amount: 150, category: "dining", credit_card_ids: [ cobalt.id ])
       end
 
       expect(wallet_queries).to eq(1)
@@ -114,7 +134,7 @@ RSpec.describe Recommendations::ForPurchase do
       expect(described_class.call(user: user, amount: 1_000_001, category: "dining").errors).to eq([ "Amount must be less than or equal to 1000000" ])
       expect(described_class.call(user: user, amount: "12abc", category: "dining").errors).to eq([ "Amount is not a number" ])
       expect(described_class.call(user: user, amount: 10, category: "crypto").errors).to eq([ "Category is not a supported purchase category" ])
-      expect(described_class.call(user: user, amount: 10, category: "dining", user_card_ids: [ "x" ]).errors).to eq([ "User card ids must be whole numbers" ])
+      expect(described_class.call(user: user, amount: 10, category: "dining", credit_card_ids: [ "x" ]).errors).to eq([ "Credit card ids must be whole numbers" ])
       expect(described_class.call(user: user, amount: nil, category: nil).errors).to include("Amount can't be blank", "Category can't be blank")
     end
   end

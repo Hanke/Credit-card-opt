@@ -1,4 +1,3 @@
-# Request-spec helper for authenticating as a user via the Bearer scheme.
 module AuthHelpers
   def auth_headers(user, **token_options)
     { "Authorization" => "Bearer #{Auth::IssueToken.call(user, **token_options)}" }

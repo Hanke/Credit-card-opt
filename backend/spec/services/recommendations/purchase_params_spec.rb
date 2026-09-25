@@ -6,7 +6,7 @@ RSpec.describe Recommendations::PurchaseParams do
 
     expect(purchase).to be_valid
     expect(purchase.amount).to eq(BigDecimal("150"))
-    expect(purchase.user_card_ids).to be_nil
+    expect(purchase.credit_card_ids).to be_nil
   end
 
   it "accepts an amount of exactly one million" do
@@ -32,17 +32,17 @@ RSpec.describe Recommendations::PurchaseParams do
     expect(category_errors("crypto")).to eq([ "Category is not a supported purchase category" ])
   end
 
-  it "parses user_card_ids as base-ten integers and treats a blank list as absent" do
-    expect(described_class.new(user_card_ids: [ "1", 2, "010" ]).user_card_ids).to eq([ 1, 2, 10 ])
-    expect(described_class.new(user_card_ids: []).user_card_ids).to be_nil
-    expect(described_class.new(user_card_ids: nil).user_card_ids).to be_nil
+  it "parses credit_card_ids as base-ten integers and treats a blank list as absent" do
+    expect(described_class.new(credit_card_ids: [ "1", 2, "010" ]).credit_card_ids).to eq([ 1, 2, 10 ])
+    expect(described_class.new(credit_card_ids: []).credit_card_ids).to be_nil
+    expect(described_class.new(credit_card_ids: nil).credit_card_ids).to be_nil
   end
 
-  it "rejects user_card_ids that are not whole numbers" do
-    purchase = described_class.new(amount: 10, category: "dining", user_card_ids: [ "1", "x", "0x1A", "1.5" ])
+  it "rejects credit_card_ids that are not whole numbers" do
+    purchase = described_class.new(amount: 10, category: "dining", credit_card_ids: [ "1", "x", "0x1A", "1.5" ])
 
     expect(purchase).not_to be_valid
-    expect(purchase.errors.full_messages).to eq([ "User card ids must be whole numbers" ])
+    expect(purchase.errors.full_messages).to eq([ "Credit card ids must be whole numbers" ])
   end
 
   def amount_errors(amount)

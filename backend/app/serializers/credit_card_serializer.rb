@@ -1,4 +1,3 @@
-# Summary shape used by list/search responses.
 class CreditCardSerializer < ApplicationSerializer
   def call
     {

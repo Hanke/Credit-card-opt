@@ -14,14 +14,14 @@ RSpec.describe Recommendations::Calculate do
         credit_card_id: cobalt.id,
         card_name: "Amex Cobalt",
         issuer: "American Express",
-        reward_currency: cobalt.reward_currency.name,
+        reward_currency: "Membership Rewards",
         earning_rate: BigDecimal("5"),
         points_earned: BigDecimal("750"),
         estimated_value_cents: 750,
         rule_applied: "Dining rule",
         spend_cap_cents: nil
       )
-      expect(result[:explanation]).to eq("Amex Cobalt earns 5x #{cobalt.reward_currency.name} on dining. 150 × 5 = 750 pts ≈ $7.50")
+      expect(result[:explanation]).to eq("Amex Cobalt earns 5x Membership Rewards on dining. 150 × 5 = 750 pts ≈ $7.50")
     end
 
     it "gives every result a non-empty explanation whose numbers match the numeric fields" do
@@ -48,6 +48,33 @@ RSpec.describe Recommendations::Calculate do
       )
     end
 
+    it "matches the spec example: Cobalt 750, TD Aeroplan 225, RBC Avion 150 cents on $150 dining" do
+      cobalt = create(:credit_card, :amex_cobalt)
+      create(:reward_rule, credit_card: cobalt, category: "dining", earning_rate: 5.0)
+      aeroplan = create(:credit_card, :td_aeroplan_infinite)
+      avion = create(:credit_card, :rbc_avion_infinite)
+      create(:reward_rule, credit_card: avion, category: "travel", earning_rate: 1.25)
+
+      results = described_class.call(amount: BigDecimal("150"), category: "dining", cards: [ avion, aeroplan, cobalt ], on: today)
+
+      expect(results.map { |result| result.values_at(:card_name, :points_earned, :estimated_value_cents, :rule_applied) }).to eq([
+        [ "Amex Cobalt", BigDecimal("750"), 750, "Dining rule" ],
+        [ "TD Aeroplan Visa Infinite", BigDecimal("150"), 225, "Base earn rate" ],
+        [ "RBC Avion Visa Infinite", BigDecimal("150"), 150, "Base earn rate" ]
+      ])
+    end
+
+    it "values a cash-back percentage directly as cents" do
+      td_cash_back = create(:credit_card, :td_cash_back_infinite)
+      create(:reward_rule, credit_card: td_cash_back, category: "groceries", earning_rate: 3.0, spend_cap_cents: 1_500_000)
+
+      groceries = described_class.call(amount: BigDecimal("150"), category: "groceries", cards: [ td_cash_back ], on: today).first
+      dining = described_class.call(amount: BigDecimal("150"), category: "dining", cards: [ td_cash_back ], on: today).first
+
+      expect(groceries).to include(reward_currency: "Cash Back", points_earned: BigDecimal("450"), estimated_value_cents: 450, spend_cap_cents: 1_500_000)
+      expect(dining).to include(points_earned: BigDecimal("150"), estimated_value_cents: 150, rule_applied: "Base earn rate")
+    end
+
     it "values TD Aeroplan dining at the base rate and 1.5 cents per point" do
       aeroplan = create(:credit_card, :td_aeroplan_infinite)
 
@@ -63,8 +90,7 @@ RSpec.describe Recommendations::Calculate do
 
     it "falls back to the base rate when the only rule has expired" do
       card = create(:credit_card, base_earn_rate: 1.0)
-      create(:reward_rule, credit_card: card, category: "dining", earning_rate: 5.0,
-                           effective_from: Date.new(2020, 1, 1), effective_to: Date.new(2025, 12, 31))
+      create(:reward_rule, :expired, credit_card: card, category: "dining", earning_rate: 5.0)
 
       result = described_class.call(amount: BigDecimal("100"), category: "dining", cards: [ card ], on: today).first
 
@@ -73,7 +99,7 @@ RSpec.describe Recommendations::Calculate do
 
     it "ignores rules that have not started yet" do
       card = create(:credit_card, base_earn_rate: 1.0)
-      create(:reward_rule, credit_card: card, category: "dining", earning_rate: 5.0, effective_from: today + 1)
+      create(:reward_rule, :future, credit_card: card, category: "dining", earning_rate: 5.0)
 
       result = described_class.call(amount: BigDecimal("100"), category: "dining", cards: [ card ], on: today).first
 
@@ -145,6 +171,16 @@ RSpec.describe Recommendations::Calculate do
       result = described_class.call(amount: BigDecimal("500"), category: "dining", cards: [ card ], on: today).first
 
       expect(result).to include(points_earned: BigDecimal("2500"), spend_cap_cents: 10_000)
+    end
+
+    it "rounds $33.33 at 1.25x to 41.66 points and 42 cents" do
+      card = create(:credit_card, :rbc_avion_infinite)
+      create(:reward_rule, credit_card: card, category: "travel", earning_rate: 1.25)
+
+      result = described_class.call(amount: BigDecimal("33.33"), category: "travel", cards: [ card ], on: today).first
+
+      expect(result).to include(points_earned: BigDecimal("41.66"), estimated_value_cents: 42)
+      expect(result[:explanation]).to end_with("33.33 × 1.25 = 41.66 pts ≈ $0.42")
     end
 
     it "does BigDecimal math and rounds points to two places and value to whole cents" do

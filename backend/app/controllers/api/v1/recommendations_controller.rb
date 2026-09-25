@@ -10,7 +10,7 @@ module Api
           user: current_user,
           amount: recommendation_params[:amount],
           category: recommendation_params[:category],
-          user_card_ids: recommendation_params[:user_card_ids]
+          credit_card_ids: recommendation_params[:credit_card_ids]
         )
 
         if result.success?
@@ -23,7 +23,7 @@ module Api
       private
 
       def recommendation_params
-        params.permit(:amount, :category, user_card_ids: [])
+        params.permit(:amount, :category, credit_card_ids: [])
       end
     end
   end

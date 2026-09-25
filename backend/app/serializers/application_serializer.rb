@@ -1,4 +1,3 @@
-# Base for plain-hash serializers: subclasses implement `call` using `record`.
 class ApplicationSerializer
   def self.call(record)
     new(record).call
