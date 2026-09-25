@@ -17,6 +17,8 @@ Rails.application.routes.draw do
 
       resource :wallet, only: %i[show create], controller: :wallet
       delete "wallet/:credit_card_id", to: "wallet#destroy", as: :wallet_card
+
+      resources :recommendations, only: :create
     end
   end
 end

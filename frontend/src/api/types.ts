@@ -80,20 +80,29 @@ export interface WalletCard extends CreditCard {
 }
 
 export interface RecommendationRequest {
+  amount: number
   category: PurchaseCategory
-  amount_cents?: number
+  user_card_ids?: number[]
 }
 
 export interface Recommendation {
-  card: WalletCard
-  reward_rule: RewardRule | null
+  credit_card_id: number
+  card_name: string
+  issuer: string
+  reward_currency: string
   earning_rate: string
-  estimated_value_cents: number | null
+  points_earned: string
+  estimated_value_cents: number
+  rule_applied: string
+  spend_cap_cents: number | null
+  explanation: string
 }
 
 export interface RecommendationResponse {
-  category: PurchaseCategory
-  amount_cents: number | null
-  best: Recommendation | null
-  alternatives: Recommendation[]
+  recommendation: Recommendation
+  comparisons: Recommendation[]
+  input: {
+    amount: string
+    category: PurchaseCategory
+  }
 }
