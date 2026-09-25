@@ -1,5 +1,11 @@
 
 
+https://github.com/user-attachments/assets/8021e1b6-3e0d-4081-9a13-9ea7b29f2607
+
+
+
+
+
 # Credit Card Optimizer
 
 Monorepo with a Ruby on Rails JSON API and a React frontend.
