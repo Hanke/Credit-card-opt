@@ -5,7 +5,7 @@ import { LoginPage } from '../pages/Auth/LoginPage'
 import { SignUpPage } from '../pages/Auth/SignUpPage'
 import { DashboardPage } from '../pages/DashboardPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
-import { RecommendPage } from '../pages/RecommendPage'
+import { RecommendationPage } from '../pages/Recommendation/RecommendationPage'
 import { WalletPage } from '../pages/Wallet/WalletPage'
 import { GuestRoute } from './GuestRoute'
 import { NotFoundLayout } from './NotFoundLayout'
@@ -26,7 +26,7 @@ export function AppRoutes() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/wallet" element={<WalletPage />} />
-          <Route path="/recommend" element={<RecommendPage />} />
+          <Route path="/recommend" element={<RecommendationPage />} />
         </Route>
       </Route>
 

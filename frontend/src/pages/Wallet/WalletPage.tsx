@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PageHeader } from '../../components/layout/PageHeader'
-import { Alert, Button, Card, EmptyState, Icon, Skeleton, Toast } from '../../components/ui'
+import { Button, Card, EmptyState, Icon, Skeleton, Toast } from '../../components/ui'
+import { WalletErrorAlert } from '../../components/wallet/WalletErrorAlert'
 import { useToast } from '../../hooks/useToast'
 import { useWallet } from '../../hooks/useWallet'
 import { CardSearchModal } from './CardSearchModal'
@@ -41,17 +42,7 @@ export function WalletPage() {
         }
       />
 
-      {wallet.error && !wallet.loading && (
-        <Alert
-          message="Could not load your wallet."
-          className="mb-6 items-center"
-          action={
-            <Button variant="secondary" size="sm" onClick={() => void wallet.reload()} className="-my-1.5">
-              Retry
-            </Button>
-          }
-        />
-      )}
+      {wallet.error && !wallet.loading && <WalletErrorAlert onRetry={wallet.reload} />}
 
       {wallet.loading ? (
         <WalletSkeleton />

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { addToWallet, getWallet, removeFromWallet } from '../api'
 import type { CreditCard, WalletCard } from '../api'
+import { toError } from '../lib/errors'
 
 export interface UseWalletResult {
   cards: WalletCard[]
@@ -14,10 +15,6 @@ export interface UseWalletResult {
 
 function toOptimisticWalletCard(card: CreditCard): WalletCard {
   return { ...card, active: true, added_at: new Date().toISOString() }
-}
-
-function toError(error: unknown): Error {
-  return error instanceof Error ? error : new Error(String(error))
 }
 
 function insertAt(cards: WalletCard[], index: number, card: WalletCard): WalletCard[] {

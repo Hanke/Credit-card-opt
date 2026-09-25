@@ -1,7 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import type { Credentials } from '../../api'
 import { Alert, Button, Input } from '../../components/ui'
-import { toFormErrors, type FormErrors } from './formErrors'
+import { toFieldErrors, type FieldErrors } from '../../lib/fieldErrors'
+
+const FIELDS = ['email', 'password'] as const
+type FormErrors = FieldErrors<(typeof FIELDS)[number]>
 
 interface AuthFormProps {
   submit: (credentials: Credentials) => Promise<unknown>
@@ -25,7 +28,7 @@ export function AuthForm({ submit, submitLabel, pendingLabel, passwordAutoComple
     try {
       await submit({ email, password })
     } catch (error) {
-      setErrors(toFormErrors(error))
+      setErrors(toFieldErrors(error, FIELDS))
       setSubmitting(false)
     }
   }
